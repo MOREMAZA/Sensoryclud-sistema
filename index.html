@@ -1,0 +1,5079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="LOGO SENSORY CLUB PDF_page-0001.jpg" type="logo">
+    <title> Sistema de Control SensōryClub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Biblioteca para exportar a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Agregar estas librerías para PDF -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* Estilos anteriores se mantienen igual */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #f50018;
+    --secondary-color: #E0F7FA;
+    --accent-color: #80DEEA;
+    --text-dark: #333333;
+    --text-light: #666666;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --border-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Media Queries para contenedores */
+@media (min-width: 576px) {
+    .container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #E0F7FA 0%, #f50018 100%);
+}
+
+.card-shadow {
+    box-shadow: var(--shadow);
+}
+
+.input-focus:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 205, 210, 0.3);
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Notificación responsive */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    background-color: #ff001e;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+@media (min-width: 768px) {
+    .notification {
+        left: auto;
+        max-width: 350px;
+        padding: 12px 20px;
+    }
+}
+
+.child-card {
+    transition: all 0.3s ease;
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.child-card.active {
+    border-left: 4px solid #ff0019;
+    background-color: #FFF9FA;
+}
+
+.child-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 576px) {
+    .child-timer {
+        font-size: 1rem;
+    }
+}
+
+/* BOTONES DE ACCIÓN MÁS PEQUEÑOS PERO NO ESTRECHOS */
+.btn-action {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    cursor: pointer;
+    background: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    opacity: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+    border: 1px solid transparent;
+}
+
+.btn-edit {
+    right: 38px;
+    color: #80DEEA;
+    border-color: #80DEEA;
+}
+
+.btn-delete {
+    color: #ff001e;
+    border-color: #fa001d;
+}
+
+.child-card:hover .btn-action {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.btn-edit:hover {
+    background: #80DEEA;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #f3031f;
+    color: white;
+}
+
+/* Mostrar botones de acción en móviles */
+@media (max-width: 768px) {
+    .btn-action {
+        opacity: 1;
+        transform: scale(0.95);
+        width: 26px;
+        height: 26px;
+    }
+    
+    .child-card:hover .btn-action {
+        transform: scale(1);
+    }
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.2em 0.35em;
+    font-size: 70%;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.2rem;
+}
+
+.badge-active {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+}
+
+.badge-inactive {
+    background-color: #c90017;
+    color: white;
+}
+
+.badge-free {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.badge-time {
+    background-color: #FF9800;
+    color: white;
+}
+
+.badge-gratis {
+    background-color: #9C27B0;
+    color: white;
+}
+
+.badge-hermano {
+    background-color: #9C27B0;
+    color: white;
+}
+
+.badge-hermanos {
+    background-color: #2196F3;
+    color: white;
+}
+
+.badge-temporal {
+    background-color: #FF5722;
+    color: white;
+}
+
+.header-gradient {
+    background: linear-gradient(to right, #E0F7FA, #FFFFFF);
+}
+
+.logo-container {
+    background: linear-gradient(135deg, #E0F7FA 0%, #FFCDD2 100%);
+}
+
+/* BOTONES DE TIEMPO MÁS COMPACTOS */
+.time-shortcut {
+    transition: all 0.2s;
+    cursor: pointer;
+    padding: 6px 10px;
+    margin: 3px;
+    border-radius: 6px;
+    text-align: center;
+    flex: 0 1 auto;
+    min-width: 60px;
+    font-size: 0.85rem;
+    border: 1px solid #e2e8f0;
+    background: white;
+}
+
+.time-shortcut:hover {
+    transform: scale(1.03);
+    background-color: #E0F7FA;
+}
+
+.time-shortcut.active {
+    background-color: #80DEEA;
+    color: white;
+    border-color: #80DEEA;
+}
+
+/* Contenedor flexible para atajos de tiempo */
+.time-shortcuts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+/* BOTONES DE CONTROL MÁS COMPACTOS */
+.control-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    min-width: 80px;
+    margin: 0 4px 8px 4px;
+    background: white;
+    border: 1px solid #e2e8f0;
+}
+
+.control-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+.control-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+}
+
+.control-btn:hover::after {
+    transform: translateX(0);
+}
+
+@media (min-width: 768px) {
+    .control-btn {
+        margin-bottom: 0;
+        margin-right: 6px;
+        min-width: 90px;
+    }
+}
+
+/* Contenedor para botones de control */
+.controls-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    margin: 10px 0;
+}
+
+/* Mejoras para el modal de observaciones */
+.obs-modal {
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.obs-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 15px;
+}
+
+.obs-item {
+    border-left: 3px solid #80DEEA;
+    transition: all 0.3s;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.obs-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(3px);
+}
+
+/* Efecto para notificación de alarma */
+.alarm-notification {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* BOTONES DE PESTAÑAS MÁS COMPACTOS */
+.tab-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+.tab-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.tab-button {
+    padding: 10px 14px;
+    border: none;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 6px 6px 0 0;
+    position: relative;
+    font-weight: 500;
+    color: #666;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.85rem;
+}
+
+.tab-button.active {
+    background-color: white;
+    color: #333;
+    font-weight: 600;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #ff6f91;
+}
+
+.tab-button:hover {
+    background-color: #e9ecef;
+}
+
+.tab {
+    display: none;
+    padding: 15px;
+    border-top: none;
+    background: white;
+    width: 100%;
+}
+
+.tab.active {
+    display: block;
+}
+
+@media (max-width: 576px) {
+    .tab-button {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        min-width: 80px;
+    }
+    
+    .tab {
+        padding: 12px;
+    }
+}
+
+/* Estilos para la sección de ganancias */
+.stats-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+@media (min-width: 992px) {
+    .stats-container {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+}
+
+.stats-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.stats-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2E7D32;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Estilos para la sección de gastos */
+.gasto-item {
+    border-left: 3px solid #FF9800;
+    transition: all 0.3s;
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.gasto-item:hover {
+    transform: translateX(3px);
+}
+
+.gasto-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.gasto-details {
+    flex: 1;
+    min-width: 180px;
+}
+
+.gasto-amount {
+    font-weight: bold;
+    color: #FF9800;
+    font-size: 1.1rem;
+}
+
+.gasto-categoria {
+    display: inline-block;
+    padding: 0.2em 0.35em;
+    font-size: 70%;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.2rem;
+    background-color: #FF9800;
+    color: white;
+    margin-top: 4px;
+}
+
+/* Estilos para gráficos más pequeños */
+.small-chart {
+    height: 280px !important;
+}
+
+@media (min-width: 768px) {
+    .small-chart {
+        height: 350px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .small-chart {
+        height: 400px !important;
+    }
+}
+
+/* Estilos para la información del niño seleccionado */
+.selected-child-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    color: white;
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+@media (min-width: 576px) {
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (min-width: 768px) {
+    .info-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.selected-child-info .badge-gratis {
+    background-color: #10b981;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.selected-child-info .badge-time {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.selected-child-info .font-medium {
+    color: #e5e7eb;
+    min-width: 120px;
+    display: inline-block;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.selected-child-info .text-gray-900 {
+    color: #f9fafb;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* BOTÓN AGREGAR HERMANO MÁS COMPACTO */
+.btn-agregar-hermano {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    transition: background-color 0.3s;
+    min-width: 120px;
+}
+
+.btn-agregar-hermano:hover {
+    background-color: #45a049;
+}
+
+.hermano-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 2px solid #db0404;
+    flex-wrap: wrap;
+}
+
+.hermano-info {
+    flex: 1;
+    min-width: 140px;
+    font-size: 0.85rem;
+}
+
+.hermano-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.alarm-notification h3.text-white {
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    font-size: 1.1rem;
+}
+
+/* BOTÓN DESACTIVAR ALARMA MÁS COMPACTO */
+.btn-desactivar-alarma {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-top: 8px;
+    transition: background-color 0.3s;
+    min-width: 140px;
+}
+
+.btn-desactivar-alarma:hover {
+    background-color: #ff5252;
+}
+
+.btn-desactivar-alarma:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* BOTONES PRINCIPALES MÁS COMPACTOS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    border-radius: 6px;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #d40016;
+    border-color: #d40016;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+}
+
+/* Utilidades de grid flexibles */
+.grid {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.grid-cols-1 {
+    grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+    .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Utilidades flex */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+/* Utilidades de espaciado */
+.p-2 {
+    padding: 0.4rem;
+}
+
+.p-3 {
+    padding: 0.6rem;
+}
+
+.p-4 {
+    padding: 0.8rem;
+}
+
+.m-2 {
+    margin: 0.4rem;
+}
+
+.m-3 {
+    margin: 0.6rem;
+}
+
+.m-4 {
+    margin: 0.8rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.4rem;
+}
+
+.mb-3 {
+    margin-bottom: 0.6rem;
+}
+
+.mb-4 {
+    margin-bottom: 0.8rem;
+}
+
+.mt-2 {
+    margin-top: 0.4rem;
+}
+
+.mt-3 {
+    margin-top: 0.6rem;
+}
+
+.mt-4 {
+    margin-top: 0.8rem;
+}
+
+/* Utilidades de texto */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-sm {
+    font-size: 0.8rem;
+}
+
+.text-base {
+    font-size: 0.9rem;
+}
+
+.text-lg {
+    font-size: 1rem;
+}
+
+.text-xl {
+    font-size: 1.1rem;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+/* Mejoras para formularios en móviles */
+.form-group {
+    margin-bottom: 0.8rem;
+    width: 100%;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.15rem rgba(245, 0, 24, 0.25);
+}
+
+/* Botones de formulario compactos */
+.form-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.form-actions .btn {
+    flex: 1;
+    min-width: 100px;
+    max-width: 150px;
+}
+
+/* Mejoras para tablas responsivas */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+.table th,
+.table td {
+    padding: 0.5rem 0.6rem;
+}
+
+/* Iconos más pequeños para mejor ajuste */
+.icon-sm {
+    font-size: 0.9rem;
+    width: 16px;
+    height: 16px;
+}
+
+/* Grupos de botones compactos */
+.btn-group {
+    display: inline-flex;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-group .btn {
+    border-radius: 0;
+    margin: 0;
+    border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-group .btn:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 6px 6px 0;
+    border-right: none;
+}
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <!-- Pantalla de Login -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center gradient-bg p-4">
+        <div class="w-full max-w-md bg-white rounded-xl card-shadow overflow-hidden">
+            <div class="bg-blue-500 py-6 px-8 text-center text-white">
+                <h1 class="text-3xl font-bold">SensōryClub</h1>
+                <p class="mt-1">Sistema de Control</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Usuario</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" id="username"
+                            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                            placeholder="Ingrese su usuario" autofocus>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Contraseña</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="password"
+                            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                            placeholder="Ingrese su contraseña">
+                    </div>
+                </div>
+                <button id="login-btn"
+                    class="w-full py-3 px-4 bg-pink-400 hover:bg-pink-500 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                    Iniciar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
+    <div id="main-system" class="min-h-screen bg-gray-50 hidden">
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="h-30 w-24 rounded-lg mr-4 flex items-center justify-center overflow-hidden">
+                        <img src="LOGO SENSORY CLUB PDF_page-0001.jpg" alt="Logo SensōryClub" 
+                             class="h-full w-full object-contain">
+                    </div>
+                    <h1 class="text-2xl font-semibold text-gray-800">SensōryClub</h1>
+                </div>
+                <button id="logout-btn"
+                    class="flex items-center text-red-600 hover:text-red-800 transition duration-300">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <!-- Pestañas de Navegación -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <div class="flex border-b bg-gray-50 rounded-t-lg">
+                <button class="tab-button active" data-tab="control">Control de Acceso</button>
+                <button class="tab-button" data-tab="gastos">Gastos</button>
+                <button class="tab-button" data-tab="ganancias">Ganancias</button>
+                
+            </div>
+        </div>
+
+        <!-- Contenido de Pestañas -->
+        <div class="tab-content">
+            <!-- Pestaña de Control de Acceso -->
+            <div id="control" class="tab active">
+                <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Sección Izquierda -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Buscador -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                                <div class="bg-pink-400 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                    <h2 class="text-lg font-semibold text-black">Registro de Niños</h2>
+                                    <button id="new-user-btn"
+                                        class="px-4 py-2 bg-green-400 hover:bg-green-500 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                        <i class="fas fa-user-plus mr-2"></i>Nuevo Niño
+                                    </button>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex space-x-3 items-center">
+                                        <div class="flex-1 relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <i class="fas fa-search text-gray-400"></i>
+                                            </div>
+                                            <input type="text" id="search-term"
+                                                class="w-full pl-10 pr-12 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                                placeholder="Buscar por DNI o Nombre y Apellido" autofocus>
+                                            <button id="clear-search"
+                                                class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 hidden">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <button id="search-btn"
+                                            class="px-6 py-3 bg-pink-400 hover:bg-pink-500 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                            Buscar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Lista de Niños Activos -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                                <div class="bg-pink-400 px-6 py-4 border-b border-gray-200">
+                                    <h2 class="text-lg font-semibold text-black">Niños Activos</h2>
+                                </div>
+                                <div class="p-6">
+                                    <div id="active-children" class="space-y-3">
+                                        <p class="text-gray-500 italic">No hay niños activos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección Derecha - Control -->
+                        <div class="space-y-6">
+                            <!-- Información del Niño Seleccionado -->
+                            <div id="selected-child-card" class="bg-white rounded-xl shadow-md overflow-hidden hidden">
+                                <div class="bg-pink-400 px-6 py-4 border-b border-gray-200">
+                                    <h2 class="text-lg font-semibold text-black">Niño Seleccionado</h2>
+                                </div>
+                                <div class="p-6">
+                                    <div id="selected-child-info" class="space-y-3">
+                                        <!-- Info del niño seleccionado -->
+                                    </div>
+                                    
+                                    <button id="desactivar-alarma-btn" class="btn-desactivar-alarma hidden">
+                                        <i class="fas fa-bell-slash mr-2"></i>Desactivar Alarma
+                                    </button>
+                                    
+                                    <button id="abrir-observaciones" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-2 rounded mt-4 w-full hidden">
+                                       <i class="fas fa-sticky-note"></i> Observaciones
+                                   </button>
+                                </div>
+                            </div>
+
+                            <!-- Control de Tiempo -->
+                            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                                <div class="bg-pink-400 px-6 py-4 border-b border-gray-200">
+                                    <h2 class="text-lg font-semibold text-black">Control de Tiempo</h2>
+                                </div>
+                                <div class="p-6 space-y-6">
+                                    <!-- Tiempo rápido -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Tiempo rápido</label>
+                                        <div class="grid grid-cols-4 gap-2">
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="15">15 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="20">20 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="30">30 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="60">60 min</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Minutos por Cumpleaños -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                            <svg class="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zM6 4a1 1 0 011 1v1a1 1 0 01-2 0V5a1 1 0 011-1zm8 0a1 1 0 011 1v1a1 1 0 11-2 0V5a1 1 0 011-1zm-4 12a1 1 0 100-2 1 1 0 000 2z"/>
+                                                <path fill-rule="evenodd" d="M4 8a6 6 0 1112 0v4a2 2 0 01-2 2H6a2 2 0 01-2-2V8zm2 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Minutos por Cumpleaños <span class="badge badge-gratis ml-1">GRATIS</span>
+                                        </label>
+                                        <div class="grid grid-cols-4 gap-2">
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="10" data-gratis="true">10 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="30" data-gratis="true">30 min</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Minutos por 6ta Visita -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clip-rule="evenodd"/>
+                                                <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"/>
+                                            </svg>
+                                            Minutos por 6ta Visita <span class="badge badge-gratis ml-1">GRATIS</span>
+                                        </label>
+                                        <div class="grid grid-cols-4 gap-2">
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="20" data-gratis="true">20 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="30" data-gratis="true">30 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="60" data-gratis="true">60 min</div>
+                                            <div class="time-shortcut text-center py-2 rounded border cursor-pointer" data-minutes="1" data-gratis="true">1 min</div>
+                                           
+                                        </div>
+                                    </div>
+
+                                    
+
+                                    <!-- Controles del cronómetro -->
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <button id="start-btn" class="control-btn py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition duration-300">
+                                            <i class="fas fa-play mr-2"></i> Iniciar
+                                        </button>
+                                        <button id="pause-btn" class="control-btn py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition duration-300">
+                                            <i class="fas fa-pause mr-2"></i> Pausar
+                                        </button>
+                                        <button id="resume-btn" class="control-btn py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition duration-300">
+                                            <i class="fas fa-redo mr-2"></i> Reanudar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Pestaña de Ganancias -->
+            <div id="ganancias" class="tab">
+                <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="bg-green-500 px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-white">Panel de Ganancias</h2>
+                        </div>
+                        <div class="p-6">
+                            <!-- Contraseña para acceder a ganancias -->
+                            <div id="ganancias-login" class="mb-6">
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-lock text-yellow-400"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-yellow-700">
+                                                Ingresar la contraseña de administrador.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-3 items-center">
+                                    <div class="flex-1 relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-key text-gray-400"></i>
+                                        </div>
+                                        <input type="password" id="ganancias-password"
+                                            class="w-full pl-10 pr-12 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                            placeholder="Ingrese contraseña de administrador">
+                                    </div>
+                                    <button id="ganancias-login-btn"
+                                        class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                        Acceder
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Panel de estadísticas -->
+                            <div id="ganancias-panel" class="hidden">
+                                <!-- Resumen de Ganancias -->
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="ganancia-hoy">S/ 0.00</div>
+                                        <div class="stats-label">Ganancia Hoy</div>
+                                    </div>
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="ganancia-semana">S/ 0.00</div>
+                                        <div class="stats-label">Ganancia Semana</div>
+                                    </div>
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="ganancia-mes">S/ 0.00</div>
+                                        <div class="stats-label">Ganancia Mes</div>
+                                    </div>
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="total-visitas">0</div>
+                                        <div class="stats-label">Total Visitas</div>
+                                    </div>
+                                </div>
+
+                                <!-- Gráficos -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                                    <div class="chart-container">
+                                        <h3 class="text-lg font-semibold mb-4">Ganancias por Día (Última Semana)</h3>
+                                        <canvas id="gananciasChart" class="small-chart"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h3 class="text-lg font-semibold mb-4">Distribución por Tiempo</h3>
+                                        <canvas id="tiemposChart" class="small-chart"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Tabla de visitas recientes -->
+                                <div class="chart-container">
+                                    <h3 class="text-lg font-semibold mb-4">Visitas Recientes</h3>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Niño</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiempo</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Día</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="visitas-recientes" class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay datos de visitas</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Exportar datos -->
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <button id="exportar-pdf-ganancias" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                        <i class="fas fa-file-pdf mr-2"></i>Exportar a PDF
+                                    </button>
+                                    <button id="exportar-datos" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                                        <i class="fas fa-file-excel mr-2"></i>Exportar a Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Pestaña de Gastos -->
+            <div id="gastos" class="tab">
+                <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                        <div class="bg-orange-500 px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-white">Panel de Gastos</h2>
+                        </div>
+                        <div class="p-6">
+                            <!-- Panel de gastos -->
+                            <div id="gastos-panel">
+                                <!-- Resumen de Gastos -->
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="gasto-hoy">S/ 0.00</div>
+                                        <div class="stats-label">Gasto Hoy</div>
+                                    </div>
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="gasto-semana">S/ 0.00</div>
+                                        <div class="stats-label">Gasto Semana</div>
+                                    </div>
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="gasto-mes">S/ 0.00</div>
+                                        <div class="stats-label">Gasto Mes</div>
+                                    </div>
+                                    <div class="stats-card">
+                                        <div class="stats-value" id="total-gastos">0</div>
+                                        <div class="stats-label">Total Gastos</div>
+                                    </div>
+                                </div>
+
+                                <!-- Formulario para agregar gasto -->
+                                <!-- En la sección de gastos -->
+<div id="gastos-form" class="mb-6 p-4 bg-gray-50 rounded-lg">
+    <h3 class="text-lg font-semibold mb-4">Registrar Nuevo Gasto</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <input type="text" id="gasto-descripcion" class="w-full p-2 border border-gray-300 rounded-md">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Monto (S/)</label>
+            <input type="number" id="gasto-monto" step="0.01" min="0" class="w-full p-2 border border-gray-300 rounded-md">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+            <select id="gasto-categoria" class="w-full p-2 border border-gray-300 rounded-md">
+                <option value="materiales">Materiales</option>
+                <option value="alquiler">Alquiler</option>
+                <option value="servicios">Servicios</option>
+                <option value="personal">Personal</option>
+                <option value="otros">Otros</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+            <textarea id="gasto-observaciones" class="w-full p-2 border border-gray-300 rounded-md" rows="2"></textarea>
+        </div>
+         </div>
+                 <button id="agregar-gasto-btn"
+                    class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                        <i class="fas fa-plus mr-2"></i>Agregar Gasto
+                </button>
+        </div>
+
+                                <!-- Lista de gastos recientes -->
+                                <div class="chart-container">
+                                    <h3 class="text-lg font-semibold mb-4">Gastos Recientes</h3>
+                                    <div id="lista-gastos" class="space-y-3">
+                                        <div class="text-center py-4 text-gray-500">No hay gastos registrados</div>
+                                    </div>
+                                </div>
+
+                                <!-- Gráfico de gastos -->
+                                <div class="chart-container">
+                                    <h3 class="text-lg font-semibold mb-4">Distribución de Gastos por Categoría</h3>
+                                    <canvas id="gastosChart" class="small-chart"></canvas>
+                                </div>
+
+                                <!-- Exportar datos de gastos -->
+                        <div class="mt-6 flex justify-end space-x-3">
+                       <button id="exportar-pdf" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                     <i class="fas fa-file-pdf mr-2"></i>Exportar a PDF
+                     </button>
+                 <button id="exportar-gastos" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                    <i class="fas fa-file-excel mr-2"></i>Exportar a Excel
+                    </button>
+                           </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔹 NUEVA PESTAÑA: ESTADÍSTICAS -->
+<div id="estadisticas" class="tab">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="bg-indigo-500 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-white">
+                    Estadísticas de Uso
+                </h2>
+                <p class="text-xs text-indigo-100">
+                    Distribución por tiempo, género y edad de los niños
+                </p>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- RESUMEN GENERAL -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="stats-card">
+                        <div class="stats-value" id="stats-total-visitas">0</div>
+                        <div class="stats-label">Total Visitas</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-value" id="stats-total-gratis">0</div>
+                        <div class="stats-label">Visitas Gratis (Cumpleaños / 6ta)</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-value" id="stats-total-masculino">0</div>
+                        <div class="stats-label">Niños Masculino</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-value" id="stats-total-femenino">0</div>
+                        <div class="stats-label">Niñas Femenino</div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICOS -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Gráfico por tiempo -->
+                    <div class="chart-container">
+                        <h3 class="text-lg font-semibold mb-4">
+                            Distribución por Tiempo (15, 20, 30, 60 min)
+                        </h3>
+                        <canvas id="statsChartTiempos" class="small-chart"></canvas>
+                    </div>
+
+                    <!-- Gráfico por género y gratis -->
+                    <div class="chart-container">
+                        <h3 class="text-lg font-semibold mb-1">
+                            Género y Visitas Gratis
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-3">
+                            Comparación entre Masculino / Femenino y tipos de visitas (normal, cumpleaños, 6ta visita)
+                        </p>
+                        <canvas id="statsChartGenero" class="small-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- GRÁFICO POR EDADES -->
+                <div class="chart-container">
+                    <h3 class="text-lg font-semibold mb-4">
+                        Distribución por Edad de los Niños
+                    </h3>
+                    <canvas id="statsChartEdades" class="small-chart"></canvas>
+                </div>
+
+                <!-- TABLA DETALLADA PARA EXPORTAR -->
+                <div class="chart-container">
+                    <h3 class="text-lg font-semibold mb-4">
+                        Resumen Detallado (para Excel / PDF)
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                                        Tipo
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                                        Minutos
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                                        Cantidad
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                                        Género
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+                                        Rango de Edad
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="stats-tabla-detalle" class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="5" class="px-4 py-4 text-center text-gray-500 text-sm">
+                                        No hay datos de estadísticas aún.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- BOTONES EXPORTAR -->
+                    <div class="mt-4 flex justify-end space-x-3">
+                        <button id="stats-export-excel"
+                            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition duration-300 text-sm">
+                            <i class="fas fa-file-excel mr-2"></i>Exportar a Excel
+                        </button>
+                        <button id="stats-export-pdf"
+                            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition duration-300 text-sm">
+                            <i class="fas fa-file-pdf mr-2"></i>Exportar a PDF
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+    <!-- Modal de Registro -->
+    <div id="register-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl">
+            <div class="bg-pink-400 px-6 py-4 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-black">Registrar Nuevo Niño</h3>
+                <button type="button" class="close-modal text-black hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[80vh] overflow-y-auto">
+                <form id="register-child-form">
+                    <div class="space-y-4">
+                        <!-- Campos del niño -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                            <input type="text" id="register-name"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese el nombre completo" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+                            <input type="text" id="register-dni"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese DNI" maxlength="8">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Nacimiento</label>
+                                <input type="date" id="register-birthdate"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="register-age"
+                                        class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                        placeholder="Años" min="0" max="18">
+                                    <input type="number" id="register-months"
+                                        class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                        placeholder="Meses" min="0" max="11">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Género -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Género</label>
+                            <div class="flex gap-4 mt-2">
+                                <label class="flex items-center">
+                                    <input type="radio" id="register-gender-masculino" name="register-gender" value="Masculino" class="mr-2">
+                                    Masculino
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" id="register-gender-femenino" name="register-gender" value="Femenino" class="mr-2">
+                                    Femenino
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Apoderado</label>
+                            <input type="text" id="register-guardian-name"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese nombre del apoderado" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Mamá</label>
+                                <input type="text" id="register-phone-mom"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                    placeholder="Número de teléfono">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Papá</label>
+                                <input type="text" id="register-phone-dad"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                    placeholder="Número de teléfono">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
+                            <input type="text" id="register-district"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese distrito">
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="mt-6 flex space-x-3">
+                        <button type="submit" id="confirm-register-btn"
+                            class="flex-1 px-6 py-3 bg-green-400 hover:bg-green-500 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                            <i class="fas fa-save mr-2"></i>Registrar
+                        </button>
+                        <button type="button" id="cancel-register-btn"
+                            class="flex-1 px-6 py-3 bg-red-400 hover:bg-red-500 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl">
+            <div class="bg-blue-500 px-6 py-4 rounded-t-xl flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-white">Editar Niño</h3>
+                <button type="button" class="close-edit-modal text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[80vh] overflow-y-auto">
+                <form id="edit-child-form">
+                    <div class="space-y-4">
+                        <!-- Campos del niño -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                            <input type="text" id="edit-name"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese el nombre completo" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+                            <input type="text" id="edit-dni"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese DNI" maxlength="8">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Nacimiento</label>
+                                <input type="date" id="edit-birthdate"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Edad</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="edit-age"
+                                        class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                        placeholder="Años" min="0" max="18">
+                                    <input type="number" id="edit-months"
+                                        class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                        placeholder="Meses" min="0" max="11">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Género -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Género</label>
+                            <div class="flex gap-4 mt-2">
+                                <label class="flex items-center">
+                                    <input type="radio" id="edit-gender-masculino" name="edit-gender" value="Masculino" class="mr-2">
+                                    Masculino
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" id="edit-gender-femenino" name="edit-gender" value="Femenino" class="mr-2">
+                                    Femenino
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Apoderado</label>
+                            <input type="text" id="edit-guardian-name"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                placeholder="Ingrese nombre del apoderado" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Mamá</label>
+                                <input type="text" id="edit-phone-mom"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                    placeholder="Número de teléfono">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Papá</label>
+                                <input type="text" id="edit-phone-dad"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                    placeholder="Número de teléfono">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
+                            <input type="text" id="edit-district"
+                                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none input-focus"
+                                    placeholder="Ingrese distrito">
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="mt-6 flex space-x-3">
+                        <button type="submit" id="confirm-edit-btn"
+                            class="flex-1 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                            <i class="fas fa-save mr-2"></i>Actualizar Datos
+                        </button>
+                        <button type="button" id="cancel-edit-btn"
+                            class="flex-1 px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Notificación con sonido -->
+    <div id="timeout-notification" class="notification">
+        <i class="fas fa-bell"></i>
+        <span id="timeout-message"></span>
+        <button id="close-timeout-notification" class="ml-4 text-white hover:text-gray-200">
+            <i class="fas fa-times"></i>
+        </button>
+        <audio id="timeout-sound" preload="auto" loop>
+            <source src="alarma.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Modal de Observaciones -->
+    <div id="observaciones-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden obs-modal">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg relative obs-content">
+            <button id="cerrar-observaciones" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl">&times;</button>
+            <h2 class="text-xl font-bold mb-4">Observaciones de <span id="obs-nombre"></span></h2>
+            <textarea id="obs-texto" class="w-full border rounded p-2 mb-2" rows="3" placeholder="Escribe una observación..."></textarea>
+            <button id="guardar-observacion" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mb-4">Guardar observación</button>
+            <div>
+                <h3 class="font-semibold mb-2">Historial de Observaciones</h3>
+                <div id="obs-historial" class="max-h-60 overflow-y-auto border rounded p-2 bg-gray-50 text-sm space-y-2">
+                    <div class="text-center py-4 text-gray-400">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando historial...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+// ==============================
+// CONFIGURACIÓN GENERAL
+// ==============================
+
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
+const MAX_CHILDREN = 5000;
+const GANANCIAS_PASSWORD = "carlos123";
+
+// ==============================
+// AUDIO DE ALARMA — ANDROID / CHROME FIX
+// ==============================
+
+let alarma = null;
+
+function desbloquearAudio() {
+    if (!alarma) {
+        alarma = new Audio("audio/alarma.mp3");
+        alarma.load();
+        console.log("🔊 Alarma desbloqueada correctamente en Android");
+    }
+}
+
+window.addEventListener("touchstart", desbloquearAudio, { once: true });
+window.addEventListener("click", desbloquearAudio, { once: true });
+
+function reproducirAlarma() {
+    if (alarma) {
+        alarma.currentTime = 0;
+        alarma.play().catch(err => {
+            console.log("⚠️ Error al reproducir sonido:", err);
+        });
+    } else {
+        console.warn("⚠️ El audio aún no está desbloqueado. Toca la pantalla.");
+    }
+}
+
+// ==============================
+// PRECIOS
+// ==============================
+
+const PRECIOS = {
+    semana: { 10: 10, 15: 15, 20: 20, 30: 25, 60: 40 },
+    finSemana: { 10: 10, 15: 15, 20: 20, 30: 25, 60: 50 }
+};
+
+// ==============================
+// ESTADOS
+// ==============================
+
+let activeChildren = [];
+let selectedChild = null;
+let timerIntervals = {};
+let elapsedTimes = {};
+let isTimerRunning = {};
+let assignedTimes = {};
+let currentTimeoutChildId = null;
+let originalStartTimes = {};
+let estimatedEndTimes = {};
+let visitasGratis = {};
+let timeoutNotificationVisible = false;
+let pausedTimes = {};
+let selectedMinutes = 0;
+let timerEndTimes = {};
+let visitasPagadas = {};
+let visitasRegistradas = [];
+let gastosRegistrados = [];
+let gananciasChart = null;
+let tiemposChart = null;
+let gastosChart = null;
+let gananciasAccesoAutorizado = false;
+let selectedTimes = {};
+const TIME_SELECTED_COLOR = '#4CAF50';
+
+// ==============================
+// FUNCIONES AUXILIARES
+// ==============================
+
+function showAlert(icon, title, text, timer = 1000) {
+    return Swal.fire({
+        icon,
+        title,
+        text,
+        timer,
+        showConfirmButton: false,
+        background: '#ffffff',
+        backdrop: `rgba(0,0,0,0.4)`
+    });
+}
+
+function formatTime(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function formatHour12(date) {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+        return "No registrada";
+    }
+    return date.toLocaleTimeString('es-PE', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: true 
+    }).replace('a. m.', 'am').replace('p. m.', 'pm');
+}
+
+function formatDate(dateString) {
+    if (!dateString) return "";
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "";
+        return date.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch (error) {
+        console.error("Error formateando fecha:", error);
+        return "";
+    }
+}
+
+function formatBirthDate(dateString) {
+    if (!dateString) return "No registrado";
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "Fecha inválida";
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    } catch (error) {
+        console.error("Error formateando fecha de nacimiento:", error);
+        return "Fecha inválida";
+    }
+}
+
+function obtenerNombreDia(fecha) {
+    if (!fecha || !(fecha instanceof Date) || isNaN(fecha.getTime())) {
+        return "Fecha inválida";
+    }
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return dias[fecha.getDay()];
+}
+
+function validateName(name) {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(name);
+}
+
+function getOrdinalNumber(num) {
+    if (num === 1) return '1ª visita';
+    if (num === 2) return '2ª visita';
+    if (num === 3) return '3ª visita';
+    if (num === 4) return '4ª visita';
+    if (num === 5) return '5ª visita';
+    return `${num}ª visita`;
+}
+
+function calcularPrecio(minutos, fecha = new Date()) {
+    const diaSemana = fecha.getDay();
+    const esFinSemana = diaSemana === 0 || diaSemana === 5 || diaSemana === 6;
+    
+    const precios = esFinSemana ? PRECIOS.finSemana : PRECIOS.semana;
+    return precios[minutos] || 0;
+}
+
+// ==============================
+// FUNCIONES DE TIMER CORREGIDAS
+// ==============================
+
+function iniciarIntervaloTimer(childId) {
+    if (timerIntervals[childId]) {
+        clearInterval(timerIntervals[childId]);
+    }
+    
+    timerIntervals[childId] = setInterval(() => {
+        const ahora = new Date().getTime();
+        const tiempoRestante = Math.max(0, Math.floor((timerEndTimes[childId] - ahora) / 1000));
+        
+        elapsedTimes[childId] = tiempoRestante;
+        renderActiveChildren();
+        updateSelectedChildInfo();
+        
+        if (tiempoRestante <= 0) {
+            clearInterval(timerIntervals[childId]);
+            delete timerIntervals[childId];
+            elapsedTimes[childId] = 0;
+            
+            const childIndex = activeChildren.findIndex(c => c.id === childId);
+            if (childIndex !== -1) {
+                activeChildren[childIndex].estado = 'Inactivo';
+                if (selectedChild && selectedChild.id === childId) {
+                    selectedChild.estado = 'Inactivo';
+                    updateSelectedChildInfo();
+                }
+                renderActiveChildren();
+            }
+            
+            showTimeLimitNotification(childId);
+        }
+    }, 1000);
+}
+
+// ========== FUNCIÓN PRINCIPAL CORREGIDA PARA ASIGNAR TIEMPO ==========
+async function asignarTiempoDirecto(minutos, esGratis = false, elementoSeleccionado = null) {
+    if (!selectedChild) {
+        await showAlert('error', 'Error', 'Seleccione un niño primero');
+        return false;
+    }
+
+    const childId = selectedChild.id;
+    
+    try {
+        console.log("🔄 Actualizando tiempo para:", selectedChild.nombre_completo, "minutos:", minutos);
+        
+        // ✅ ACTUALIZAR EN EL NIÑO SELECCIONADO
+        selectedChild.minutos_asignados = minutos;
+        selectedMinutes = minutos;
+        visitasGratis[childId] = esGratis;
+
+        // ✅ ACTUALIZAR EN LA LISTA DE NIÑOS ACTIVOS
+        const childInActiveList = activeChildren.find(c => c.id === childId);
+        if (childInActiveList) {
+            childInActiveList.minutos_asignados = minutos;
+            console.log("✅ Tiempo actualizado en lista activa");
+        }
+
+        // Configurar tiempos
+        const nuevaHoraEntrada = new Date();
+        originalStartTimes[childId] = nuevaHoraEntrada;
+        estimatedEndTimes[childId] = new Date(nuevaHoraEntrada.getTime() + (minutos * 60000));
+        timerEndTimes[childId] = nuevaHoraEntrada.getTime() + (minutos * 60000);
+        elapsedTimes[childId] = minutos * 60;
+        
+        // No iniciar automáticamente, esperar botón "Iniciar"
+        isTimerRunning[childId] = false;
+        selectedChild.estado = 'Inactivo';
+        
+        if (childInActiveList) {
+            childInActiveList.estado = 'Inactivo';
+        }
+        
+        console.log("⏳ Tiempo asignado - Esperando inicio manual");
+
+        // Marcar visualmente
+        if (elementoSeleccionado) {
+            marcarTiempoSeleccionado(childId, minutos, elementoSeleccionado);
+        }
+
+        // ✅ FORZAR ACTUALIZACIÓN DE AMBAS VISTAS
+        updateSelectedChildInfo();
+        renderActiveChildren();
+
+        await showAlert('success', 'Tiempo asignado', 
+    `${minutos} minutos asignados a ${selectedChild.nombre_completo}.`);
+        
+    } catch (error) {
+        console.error("❌ Error actualizando tiempo:", error);
+        await showAlert('error', 'Error', 'No se pudo actualizar el tiempo');
+        return false;
+    }
+}
+
+// ========== FUNCIONES SIMPLIFICADAS PARA MARCADO VISUAL ==========
+function marcarTiempoSeleccionado(childId, minutos, elementoSeleccionado) {
+    if (!childId || !elementoSeleccionado) return;
+    
+    // Limpiar selección anterior para ESTE niño específico
+    const timeShortcuts = document.querySelectorAll('.time-shortcut');
+    timeShortcuts.forEach(shortcut => {
+        shortcut.style.backgroundColor = '';
+        shortcut.style.color = '';
+        shortcut.style.borderColor = '';
+        shortcut.style.fontWeight = '';
+        
+        const existingCheck = shortcut.querySelector('.check-icon');
+        if (existingCheck) {
+            existingCheck.remove();
+        }
+    });
+    
+    // Marcar SOLO el botón clickeado
+    elementoSeleccionado.style.backgroundColor = TIME_SELECTED_COLOR;
+    elementoSeleccionado.style.color = 'white';
+    elementoSeleccionado.style.borderColor = TIME_SELECTED_COLOR;
+    elementoSeleccionado.style.fontWeight = 'bold';
+    
+    const checkIcon = document.createElement('i');
+    checkIcon.className = 'check-icon fas fa-check ml-1';
+    elementoSeleccionado.appendChild(checkIcon);
+    
+    // Guardar referencia
+    selectedTimes[childId] = {
+        minutos: minutos,
+        elemento: elementoSeleccionado
+    };
+    
+    console.log(`✅ Tiempo ${minutos} min seleccionado para:`, childId);
+}
+
+function actualizarMarcadoVisual() {
+    const timeShortcuts = document.querySelectorAll('.time-shortcut');
+    
+    // Limpiar todos los estilos primero
+    timeShortcuts.forEach(shortcut => {
+        shortcut.style.backgroundColor = '';
+        shortcut.style.color = '';
+        shortcut.style.borderColor = '';
+        shortcut.style.fontWeight = '';
+        
+        const existingCheck = shortcut.querySelector('.check-icon');
+        if (existingCheck) {
+            existingCheck.remove();
+        }
+    });
+    
+    // Aplicar estilos al tiempo seleccionado actual
+    if (selectedChild && selectedTimes[selectedChild.id]) {
+        const minutosSeleccionados = selectedTimes[selectedChild.id].minutos;
+        
+        timeShortcuts.forEach(shortcut => {
+            const minutosBoton = parseInt(shortcut.getAttribute('data-minutes'));
+            if (minutosBoton === minutosSeleccionados) {
+                shortcut.style.backgroundColor = TIME_SELECTED_COLOR;
+                shortcut.style.color = 'white';
+                shortcut.style.borderColor = TIME_SELECTED_COLOR;
+                shortcut.style.fontWeight = 'bold';
+                
+                const checkIcon = document.createElement('i');
+                checkIcon.className = 'check-icon fas fa-check ml-1';
+                shortcut.appendChild(checkIcon);
+                
+                // Actualizar la referencia
+                selectedTimes[selectedChild.id].elemento = shortcut;
+            }
+        });
+    }
+}
+
+function limpiarSeleccionTiempo(childId) {
+    if (selectedTimes[childId]) {
+        const elemento = selectedTimes[childId].elemento;
+        if (elemento) {
+            elemento.style.backgroundColor = '';
+            elemento.style.color = '';
+            elemento.style.borderColor = '';
+            elemento.style.fontWeight = '';
+            
+            const existingCheck = elemento.querySelector('.check-icon');
+            if (existingCheck) {
+                existingCheck.remove();
+            }
+        }
+        delete selectedTimes[childId];
+    }
+    selectedMinutes = 0;
+}
+
+// ========== FUNCIONES DE GESTIÓN DE NIÑOS ==========
+async function loadChildData(childId) {
+    try {
+        console.log("🔍 Cargando datos del niño ID:", childId);
+        const response = await fetch(`${API_BASE_URL}/nino/${childId}`);
+        
+        if (response.status === 404) {
+            console.log("⚠️ Niño no encontrado en BD (puede ser recién registrado), ID:", childId);
+            return null;
+        }
+        
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data && data.nino) {
+            console.log("✅ Datos cargados correctamente para ID:", childId);
+            return {
+                nino: data.nino
+            };
+        } else {
+            console.warn("⚠️ Estructura de datos inválida para ID:", childId);
+            return null;
+        }
+    } catch (error) {
+        console.error("❌ Error cargando niño ID:", childId, error);
+        return null;
+    }
+}
+
+async function addChildToActiveList(user) {
+    if (!user || !user.id) return;
+    
+    const existingChild = activeChildren.find(c => c.id === user.id);
+    if (existingChild) {
+        selectChild(existingChild);
+        await showAlert('info', 'Niño ya activo', 'Este niño ya está en la lista de activos');
+        return;
+    }
+
+    if (activeChildren.length >= MAX_CHILDREN) {
+        await showAlert('error', 'Límite alcanzado', `Solo puedes tener ${MAX_CHILDREN} niños activos a la vez`);
+        return;
+    }
+
+    try {
+        let childWithData;
+        
+        if (user.nombre_completo && user.dni) {
+            console.log("✅ Usando datos de niño recién registrado:", user);
+            childWithData = {
+                ...user,
+                tipo_usuario: 'nino'
+            };
+        } else {
+            const childData = await loadChildData(user.id);
+            
+            if (childData && childData.nino) {
+                childWithData = {
+                    ...childData.nino,
+                    tipo_usuario: 'nino'
+                };
+            } else {
+                childWithData = {
+                    ...user,
+                    tipo_usuario: 'nino'
+                };
+            }
+        }
+
+        childWithData.estado = 'Inactivo';
+        childWithData.minutos_asignados = childWithData.minutos_asignados || 0;
+        childWithData.sesiones_totales = childWithData.sesiones_totales || 0;
+        childWithData.sesiones_pagadas = childWithData.sesiones_pagadas || 0;
+
+        elapsedTimes[childWithData.id] = 0;
+        selectedMinutes = 0;
+        isTimerRunning[childWithData.id] = false;
+        originalStartTimes[childWithData.id] = null;
+        
+        activeChildren.push(childWithData);
+
+        const sesionesPagadas = childWithData.sesiones_pagadas || 0;
+        visitasGratis[childWithData.id] = (sesionesPagadas + 1) % 6 === 0;
+
+        renderActiveChildren();
+        await selectChildDirect(childWithData);
+        
+        const searchTerm = document.getElementById('search-term');
+        if (searchTerm) searchTerm.select();
+        
+    } catch (error) {
+        console.error("Error al agregar niño a lista activa:", error);
+        await showAlert('error', 'Error', 'No se pudieron cargar los datos completos del niño');
+    }
+}
+
+async function selectChildDirect(child) {
+    if (!child) return;
+    
+    try {
+        if (selectedChild) {
+            const previouslySelected = document.querySelector(`[data-child-id="${selectedChild.id}"]`);
+            if (previouslySelected) {
+                previouslySelected.classList.remove('border-l-red-500', 'border-r', 'border-t', 'border-b');
+                previouslySelected.classList.add('border-l-transparent');
+            }
+        }
+
+        selectedChild = {
+            ...child,
+            tipo_usuario: 'nino'
+        };
+        
+        renderActiveChildren();
+        updateSelectedChildInfo();
+        
+        const selectedChildCard = document.getElementById('selected-child-card');
+        if (selectedChildCard) {
+            selectedChildCard.classList.remove('hidden');
+        }
+        
+        actualizarMarcadoVisual();
+        await verificarAlarmaActiva();
+        toggleObsBtn();
+        
+    } catch (error) {
+        console.error("Error en selectChildDirect:", error);
+        selectedChild = {
+            ...child,
+            tipo_usuario: 'nino'
+        };
+        renderActiveChildren();
+        updateSelectedChildInfo();
+        actualizarMarcadoVisual();
+        await verificarAlarmaActiva();
+    }
+}
+
+async function selectChild(child) {
+    if (!child) return;
+    
+    try {
+        if (selectedChild) {
+            const previouslySelected = document.querySelector(`[data-child-id="${selectedChild.id}"]`);
+            if (previouslySelected) {
+                previouslySelected.classList.remove('border-l-red-500', 'border-r', 'border-t', 'border-b');
+                previouslySelected.classList.add('border-l-transparent');
+            }
+        }
+
+        let childData;
+        try {
+            childData = await loadChildData(child.id);
+        } catch (error) {
+            console.warn("No se pudieron cargar datos actualizados, usando datos locales:", error);
+            childData = null;
+        }
+        
+        if (childData && childData.nino) {
+            selectedChild = {
+                ...childData.nino,
+                tipo_usuario: 'nino'
+            };
+            console.log("✅ Datos actualizados desde BD");
+        } else {
+            selectedChild = {
+                ...child,
+                tipo_usuario: 'nino'
+            };
+            console.log("✅ Usando datos locales existentes");
+        }
+        
+        renderActiveChildren();
+        updateSelectedChildInfo();
+        
+        const selectedChildCard = document.getElementById('selected-child-card');
+        if (selectedChildCard) {
+            selectedChildCard.classList.remove('hidden');
+        }
+        
+        actualizarMarcadoVisual();
+        await verificarAlarmaActiva();
+        toggleObsBtn();
+    } catch (error) {
+        console.error("Error al seleccionar niño:", error);
+        selectedChild = {
+            ...child,
+            tipo_usuario: 'nino'
+        };
+        renderActiveChildren();
+        updateSelectedChildInfo();
+        actualizarMarcadoVisual();
+        await verificarAlarmaActiva();
+    }
+}
+
+// ========== RENDERIZADO DE NIÑOS ACTIVOS ==========
+function renderActiveChildren() {
+    const activeChildrenContainer = document.getElementById('active-children');
+    if (!activeChildrenContainer) return;
+    
+    if (activeChildren.length === 0) {
+        activeChildrenContainer.innerHTML = '<p class="text-gray-500 italic">No hay niños activos</p>';
+        return;
+    }
+
+    activeChildrenContainer.innerHTML = '';
+    activeChildren.forEach(child => {
+        if (!child || !child.id) return;
+        
+        let cardClass = `child-card bg-white p-4 rounded-lg border-l-4 cursor-pointer relative`;
+        
+        if (selectedChild?.id === child.id) {
+            cardClass += ' border-l-red-500 border-gray-200 border-r border-t border-b';
+        } else {
+            cardClass += ' border-l-transparent border-gray-200 border';
+        }
+        
+        const childCard = document.createElement('div');
+        childCard.className = cardClass;
+        childCard.setAttribute('data-child-id', child.id);
+
+        const estado = isTimerRunning[child.id] ? 'Activo' : 'Inactivo';
+        const statusClass = isTimerRunning[child.id] ? 'badge-active' : 'badge-inactive';
+        
+        // ✅ USAR SIEMPRE child.minutos_asignados para consistencia
+        const minutosMostrar = child.minutos_asignados || 0;
+        
+        childCard.innerHTML = `
+    <div class="flex justify-between items-start">
+        <div class="flex-1">
+            <p class="font-semibold">${child.nombre_completo || 'Sin nombre'} 
+                <span class="badge ${statusClass}">${estado}</span>
+                ${minutosMostrar > 0 ? `<span class="badge badge-time ml-1">${minutosMostrar} min</span>` : '<span class="badge badge-time ml-1">0 min</span>'}
+            </p>
+            <p class="text-sm text-gray-600">DNI: ${child.dni && !child.dni.startsWith('SIN-DNI') ? child.dni : 'No registrado'}</p>
+            <p class="text-sm text-gray-600">Fecha Nacimiento: ${child.fecha_nacimiento ? formatBirthDate(child.fecha_nacimiento) : 'No registrado'}</p>
+            <p class="text-sm text-gray-600">Edad: ${child.edad ? `${child.edad} años ${child.meses || 0} meses` : 'No registrado'}</p>
+            <p class="text-sm text-gray-600">Género: ${child.genero || 'No registrado'}</p>
+            ${child.nombre_apoderado ? `<p class="text-sm text-gray-600">Apoderado: ${child.nombre_apoderado}</p>` : ''}
+        </div>
+        <div class="text-right">
+            <p class="child-timer text-sm">
+                ${formatTime(elapsedTimes[child.id] || 0)}
+            </p>
+        </div>
+    </div>
+    <div class="btn-action btn-edit" data-id="${child.id}" title="Editar datos">
+        <i class="fas fa-pencil-alt text-xs"></i>
+    </div>
+    <div class="btn-action btn-delete" data-id="${child.id}" title="Finalizar visita">
+        <i class="fas fa-times text-xs"></i>
+    </div>
+`;
+
+        childCard.addEventListener('click', (e) => {
+            if (!e.target.closest('.btn-action')) {
+                selectChild(child);
+            }
+        });
+
+        const editBtn = childCard.querySelector('.btn-edit');
+        const deleteBtn = childCard.querySelector('.btn-delete');
+
+        if (editBtn) {
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = editBtn.getAttribute('data-id');
+                const child = activeChildren.find(c => c.id == id);
+                if (child) {
+                    openEditModal(child);
+                }
+            });
+        }
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = deleteBtn.getAttribute('data-id');
+                const child = activeChildren.find(c => c.id == id);
+                
+                if (child) {
+                    selectChild(child);
+                    await finalizarVisita();
+                }
+            });
+        }
+
+        activeChildrenContainer.appendChild(childCard);
+    });
+    
+    toggleObsBtn();
+}
+
+
+
+// ========== ACTUALIZAR INFORMACIÓN DEL NIÑO SELECCIONADO ==========
+function updateSelectedChildInfo() {
+    const selectedChildInfo = document.getElementById('selected-child-info');
+    if (!selectedChildInfo || !selectedChild) return;
+
+    const formatField = (value, defaultValue = 'No registrado') => {
+        if (value === null || value === undefined || value === 'null' || value === '' || value === 'NULL') {
+            return defaultValue;
+        }
+        return value;
+    };
+    
+    const visitasMostradas = selectedChild.sesiones_totales || 0;
+    const sesionesPagadas = selectedChild.sesiones_pagadas || 0;
+    
+    const visitasParaGratis = sesionesPagadas === 0 ? 6 : 6 - (sesionesPagadas % 6);
+    const esVisitaGratis = visitasGratis[selectedChild.id];
+
+// ✅ HORA ENTRADA: Si hay hora guardada, usarla. Sino, hora actual.
+let horaEntrada;
+if (originalStartTimes[selectedChild.id]) {
+    // Usar hora congelada (una vez iniciado)
+    horaEntrada = formatHour12(originalStartTimes[selectedChild.id]);
+} else {
+    // Usar hora actual (antes de iniciar)
+    horaEntrada = formatHour12(new Date());
+}
+
+    let horaSalidaEstimada = "No asignado";
+    if (estimatedEndTimes[selectedChild.id]) {
+        horaSalidaEstimada = formatHour12(estimatedEndTimes[selectedChild.id]);
+    }
+
+    const tiempoAsignado = selectedChild.minutos_asignados ? 
+        `${selectedChild.minutos_asignados} min` : 'Sin tiempo asignado';
+
+    const estado = isTimerRunning[selectedChild.id] ? 'Activo' : 'Inactivo';
+
+    const generoMostrado = selectedChild.genero ? 
+        (selectedChild.genero === 'Masculino' ? 'Masculino' : 
+         selectedChild.genero === 'Femenino' ? 'Femenino' : selectedChild.genero) : 
+        'No registrado';
+
+    selectedChildInfo.innerHTML = `
+    <div class="space-y-3">
+        <div class="flex justify-between items-start">
+            <p class="font-semibold text-lg text-gray-800">${formatField(selectedChild.nombre_completo, 'Sin nombre')}</p>
+            <div class="flex gap-2">
+                ${selectedChild.minutos_asignados ? `<span class="badge badge-time">${selectedChild.minutos_asignados} min</span>` : ''}
+            </div>
+        </div>
+            
+            ${selectedChild.dni && !selectedChild.dni.startsWith('SIN-DNI') ? 
+             '<p><span class="font-medium text-gray-700">DNI:</span> <span class="text-gray-900">' + formatField(selectedChild.dni) + '</span></p>' : 
+             '<p><span class="font-medium text-gray-700">DNI:</span> <span class="text-gray-900">No registrado</span></p>'}
+            
+            ${selectedChild.fecha_nacimiento ? 
+             '<p><span class="font-medium text-gray-700">Fecha Nacimiento:</span> <span class="text-gray-900">' + formatBirthDate(selectedChild.fecha_nacimiento) + '</span></p>' : 
+             '<p><span class="font-medium text-gray-700">Fecha Nacimiento:</span> <span class="text-gray-900">No registrado</span></p>'}
+            ${selectedChild.edad ? 
+              '<p><span class="font-medium text-gray-700">Edad:</span> <span class="text-gray-900">' + selectedChild.edad + ' años ' + (selectedChild.meses || 0) + ' meses</span></p>' : 
+              '<p><span class="font-medium text-gray-700">Edad:</span> <span class="text-gray-900">No registrado</span></p>'}
+            
+            <p><span class="font-medium text-gray-700">Género:</span> <span class="text-gray-900">${generoMostrado}</span></p>
+            
+            <p><span class="font-medium text-gray-700">Apoderado:</span> <span class="text-gray-900">${formatField(selectedChild.nombre_apoderado)}</span></p>
+            <p><span class="font-medium text-gray-700">Teléfono de Mamá:</span> <span class="text-gray-900">${formatField(selectedChild.telefono_mama)}</span></p>
+            <p><span class="font-medium text-gray-700">Teléfono de Papá:</span> <span class="text-gray-900">${formatField(selectedChild.telefono_papa)}</span></p>
+            <p><span class="font-medium text-gray-700">Distrito:</span> <span class="text-gray-900">${formatField(selectedChild.distrito)}</span></p>
+            
+            <div class="border-t border-gray-200 pt-2 mt-2">
+                <p><span class="font-medium text-gray-700">Total visitas:</span> <span class="text-gray-900 font-semibold">${visitasMostradas}</span></p>
+                <p><span class="font-medium text-gray-700">Visitas pagadas:</span> <span class="text-gray-900 font-semibold">${sesionesPagadas}</span></p>
+                <p><span class="font-medium text-gray-700">Visitas para gratis:</span> 
+                   <span class="text-green-600 font-semibold">${visitasParaGratis}/6</span>
+                </p>
+            </div>
+            
+            <!-- ✅ HORA ENTRADA: Congelada si el timer está activo -->
+            <div class="border-t border-gray-200 pt-2 mt-2">
+                <p><span class="font-medium text-gray-700">Hora de entrada:</span> <span class="text-blue-600" id="hora-entrada-actual">${horaEntrada}</span></p>
+            </div>
+            
+            ${isTimerRunning[selectedChild.id] ? 
+                '<div class="border-t border-gray-200 pt-2 mt-2">' +
+                    '<p><span class="font-medium text-gray-700">Hora de salida estimada:</span> <span class="text-orange-600">' + horaSalidaEstimada + '</span></p>' +
+                    '<p><span class="font-medium text-gray-700">Tiempo asignado:</span> <span class="text-purple-600">' + tiempoAsignado + '</span></p>' +
+                '</div>' : ''}
+            
+            <div class="border-t border-gray-200 pt-2 mt-2">
+                <p><span class="font-medium text-gray-700">Estado:</span> 
+                    <span class="badge ${isTimerRunning[selectedChild.id] ? 'badge-active' : 'badge-inactive'}">
+                        ${estado}
+                    </span>
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+// ========== FUNCIÓN PARA ACTUALIZAR HORA EN TIEMPO REAL ==========
+function iniciarActualizacionHoraReal() {
+    setInterval(() => {
+        if (selectedChild) {
+            const horaEntradaElement = document.getElementById('hora-entrada-actual');
+            if (horaEntradaElement) {
+                // ✅ SOLO actualizar si NO hay hora de inicio guardada (antes de iniciar)
+                if (!originalStartTimes[selectedChild.id]) {
+                    const ahora = new Date();
+                    horaEntradaElement.textContent = formatHour12(ahora);
+                }
+            }
+        }
+    }, 1000);
+}
+// Iniciar la actualización en tiempo real cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    iniciarActualizacionHoraReal();
+});
+
+// ========== FUNCIÓN FINALIZAR VISITA - CORREGIDA ==========
+async function finalizarVisita() {
+    if (!selectedChild) {
+        await showAlert('error', 'Error', 'Seleccione un niño primero');
+        return;
+    }
+
+    const { isConfirmed } = await Swal.fire({
+        title: 'Confirmar finalización',
+        text: `¿Desea finalizar la visita de ${selectedChild.nombre_completo}? Esto registrará la visita y quitará al niño de la lista activa.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, finalizar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        background: '#ffffff',
+        backdrop: `rgba(0,0,0,0.4)`
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+        // Detener timer si está activo
+        if (currentTimeoutChildId === selectedChild.id) {
+            closeTimeoutNotification();
+        }
+
+        if (timerIntervals[selectedChild.id]) {
+            clearInterval(timerIntervals[selectedChild.id]);
+            delete timerIntervals[selectedChild.id];
+        }
+
+        const esVisitaGratis = visitasGratis[selectedChild.id];
+
+        // ✅ USAR EL TIEMPO SELECCIONADO EXACTO
+        let minutosUtilizados = selectedMinutes;
+
+        // ✅ PRECIO FIJO SEGÚN EL TIEMPO SELECCIONADO
+        let precioFinal = 0;
+        
+        if (!esVisitaGratis && selectedMinutes > 0) {
+            const fecha = new Date();
+            const diaSemana = fecha.getDay();
+            const esFinSemana = diaSemana === 0 || diaSemana === 5 || diaSemana === 6;
+            const precios = esFinSemana ? PRECIOS.finSemana : PRECIOS.semana;
+            
+            precioFinal = precios[selectedMinutes] || 0;
+        }
+
+        console.log("💰 Precio fijo calculado:", {
+            selectedMinutes,
+            esVisitaGratis,
+            precioFinal,
+            minutosUtilizados
+        });
+
+        // 1. REGISTRAR EN EL BACKEND
+        const response = await fetch(`${API_BASE_URL}/finalizar-visita`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: parseInt(selectedChild.id),
+                minutos_utilizados: minutosUtilizados,
+                visita_gratis: esVisitaGratis,
+                precio: precioFinal
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Error al finalizar visita');
+        }
+
+        // 2. ACTUALIZAR DATOS LOCALES
+        const childIndex = activeChildren.findIndex(c => c.id === selectedChild.id);
+        if (childIndex !== -1) {
+            activeChildren[childIndex].sesiones_totales = data.sesiones_totales;
+            activeChildren[childIndex].sesiones_pagadas = data.sesiones_pagadas;
+            activeChildren[childIndex].estado = 'Inactivo';
+        }
+
+        selectedChild.sesiones_totales = data.sesiones_totales;
+        selectedChild.sesiones_pagadas = data.sesiones_pagadas;
+        selectedChild.estado = 'Inactivo';
+
+        limpiarSeleccionTiempo(selectedChild.id);
+
+        // 3. AGREGAR A VISITAS LOCALES
+        const fecha = new Date();
+        const visita = {
+            id: Date.now(),
+            childId: selectedChild.id,
+            nombre: selectedChild.nombre_completo,
+            minutos: minutosUtilizados,
+            precio: precioFinal,
+            fecha: fecha.toISOString(),
+            dia: obtenerNombreDia(fecha),
+            esGratis: esVisitaGratis
+        };
+        
+        visitasRegistradas.unshift(visita);
+
+        // 4. ACTUALIZAR INTERFAZ INMEDIATAMENTE
+        await mostrarVisitasRecientes();
+
+        // 5. MOSTRAR CONFIRMACIÓN
+        const nuevasSesionesPagadas = data.sesiones_pagadas;
+        const nuevasVisitasParaGratis = nuevasSesionesPagadas === 0 ? 6 : 6 - (nuevasSesionesPagadas % 6);
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Visita registrada',
+            html: `
+                <div class="text-left">
+                    <p><strong>${selectedChild.nombre_completo}</strong> registrada exitosamente.</p>
+                    <div class="mt-3 space-y-1 text-sm">
+                        <p>📊 <strong>Total visitas:</strong> ${data.sesiones_totales}</p>
+                        <p>💰 <strong>Visitas pagadas:</strong> ${nuevasSesionesPagadas}</p>
+                        <p>🎁 <strong>Visitas para gratis:</strong> ${nuevasVisitasParaGratis}/6</p>
+                        <p>⏱️ <strong>Tiempo seleccionado:</strong> ${selectedMinutes} minutos</p>
+                        <p>💰 <strong>Precio:</strong> S/ ${precioFinal.toFixed(2)}</p>
+                    </div>
+                </div>
+            `,
+            timer: 3000,
+            showConfirmButton: false,
+            background: '#ffffff',
+            backdrop: `rgba(0,0,0,0.4)`
+        });
+
+        // 6. LIMPIAR Y REMOVER
+        renderActiveChildren();
+        updateSelectedChildInfo();
+        removeChildFromActiveList(selectedChild.id);
+
+    } catch (error) {
+        console.error("Error en finalizarVisita:", error);
+        await showAlert('error', 'Error', 'Error interno al finalizar visita. Por favor, intente nuevamente.');
+    }
+}
+
+function removeChildFromActiveList(id) {
+    if (!id) return;
+    
+    if (timerIntervals[id]) {
+        clearInterval(timerIntervals[id]);
+        delete timerIntervals[id];
+    }
+    
+    activeChildren = activeChildren.filter(c => c.id != id);
+    delete visitasGratis[id];
+    delete originalStartTimes[id];
+    delete estimatedEndTimes[id];
+    delete elapsedTimes[id];
+    delete assignedTimes[id];
+    delete isTimerRunning[id];
+    delete pausedTimes[id];
+    delete timerEndTimes[id];
+    delete visitasPagadas[id];
+    limpiarSeleccionTiempo(id);
+    
+    if (selectedChild && selectedChild.id == id) {
+        selectedChild = null;
+        const selectedChildCard = document.getElementById('selected-child-card');
+        if (selectedChildCard) {
+            selectedChildCard.classList.add('hidden');
+        }
+    }
+    
+    renderActiveChildren();
+}
+
+// ========== FUNCIONES DE NOTIFICACIONES ==========
+async function showTimeLimitNotification(childId) {
+    const child = activeChildren.find(c => c.id === childId);
+    const timeoutNotification = document.getElementById('timeout-notification');
+    const timeoutMessage = document.getElementById('timeout-message');
+    if (!child || !timeoutNotification || !timeoutMessage) return;
+    
+    currentTimeoutChildId = childId;
+    
+    timeoutMessage.innerHTML = `
+    <div class="text-center text-white">
+        <div class="text-4xl mb-3">⏰</div>
+        <h3 class="text-xl font-bold mb-2">¡Tiempo Agotado!</h3>
+        <p class="mb-4">
+            <strong>${child.nombre_completo}</strong> ha terminado su tiempo.
+        </p>
+        
+        <!-- Tiempo rápido -->
+        <div class="mb-4">
+            <h4 class="text-lg font-semibold mb-2 text-white">Tiempo rápido</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="asignarTiempoDesdeNotificacion(15)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    15 min
+                </button>
+                <button onclick="asignarTiempoDesdeNotificacion(20)" class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    20 min
+                </button>
+                <button onclick="asignarTiempoDesdeNotificacion(30)" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    30 min
+                </button>
+                <button onclick="asignarTiempoDesdeNotificacion(60)" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    60 min
+                </button>
+            </div>
+        </div>
+        
+        <!-- Minutos por Cumpleaños -->
+        <div class="mb-4">
+           <h4 class="text-lg font-semibold mb-2 text-white">Minutos por Cumpleaños</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="asignarTiempoDesdeNotificacion(10)" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    10 min 
+                </button>
+                <button onclick="asignarTiempoDesdeNotificacion(30)" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    30 min 
+                </button>
+            </div>
+        </div>
+        
+        <!-- Minutos por 6ta Visita -->
+        <div class="mb-4">
+            <h4 class="text-lg font-semibold mb-2 text-white">Minutos por 6ta Visita</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="asignarTiempoDesdeNotificacion(10)" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    10 min 
+                </button>
+                <button onclick="asignarTiempoDesdeNotificacion(30)" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-3 rounded-lg font-medium transition-colors">
+                    30 min 
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex gap-2 justify-center mt-4">
+            <button onclick="finalizarVisitaDesdeNotificacion()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors">
+                Finalizar Visita
+            </button>
+            <button onclick="closeTimeoutNotification()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors">
+                Apagar Alarma
+            </button>
+        </div>
+    </div>
+    `;
+    
+    timeoutNotification.classList.add('show', 'alarm-notification');
+    
+    // 🔊 SONAR ALARMA
+    reproducirAlarma();
+
+    timeoutNotificationVisible = true;
+}
+
+function closeTimeoutNotification() {
+    const timeoutNotification = document.getElementById('timeout-notification');
+    
+    if (alarma) {
+        alarma.pause();
+        alarma.currentTime = 0;
+    }
+
+    if (!timeoutNotification) return;
+
+    timeoutNotification.classList.remove('show', 'alarm-notification');
+    timeoutNotificationVisible = false;
+    currentTimeoutChildId = null;
+}
+
+// ========== FUNCIÓN CORREGIDA PARA ASIGNAR TIEMPO DESDE NOTIFICACIÓN ==========
+async function asignarTiempoDesdeNotificacion(minutos) {
+    if (currentTimeoutChildId) {
+        const child = activeChildren.find(c => c.id === currentTimeoutChildId);
+        if (child) {
+            // 1. Seleccionar el niño
+            await selectChildDirect(child);
+            
+            // 2. Asignar el tiempo
+            await asignarTiempoDirecto(minutos);
+            
+            // 3. MARCAR VISUALMENTE EN CONTROL DE TIEMPO
+            marcarTiempoEnControlTiempo(minutos);
+            
+            // 4. INICIAR EL TIMER AUTOMÁTICAMENTE
+            await iniciarTimerAutomaticamente();
+            
+            // 5. Cerrar la notificación
+            closeTimeoutNotification();
+        }
+    }
+}
+
+// ========== FUNCIÓN PARA MARCAR VISUALMENTE EN CONTROL DE TIEMPO ==========
+function marcarTiempoEnControlTiempo(minutos) {
+    if (!selectedChild) return;
+    
+    // Limpiar selección anterior
+    const timeShortcuts = document.querySelectorAll('.time-shortcut');
+    timeShortcuts.forEach(shortcut => {
+        shortcut.style.backgroundColor = '';
+        shortcut.style.color = '';
+        shortcut.style.borderColor = '';
+        shortcut.style.fontWeight = '';
+        
+        const existingCheck = shortcut.querySelector('.check-icon');
+        if (existingCheck) {
+            existingCheck.remove();
+        }
+    });
+    
+    // Buscar y marcar el botón correspondiente al tiempo seleccionado
+    const botonesTiempo = document.querySelectorAll('.time-shortcut');
+    botonesTiempo.forEach(boton => {
+        const minutosBoton = parseInt(boton.getAttribute('data-minutes'));
+        if (minutosBoton === minutos) {
+            // Aplicar estilos de selección
+            boton.style.backgroundColor = TIME_SELECTED_COLOR;
+            boton.style.color = 'white';
+            boton.style.borderColor = TIME_SELECTED_COLOR;
+            boton.style.fontWeight = 'bold';
+            
+            // Agregar icono de check
+            const checkIcon = document.createElement('i');
+            checkIcon.className = 'check-icon fas fa-check ml-1';
+            boton.appendChild(checkIcon);
+            
+            // Guardar referencia para futuras actualizaciones
+            selectedTimes[selectedChild.id] = {
+                minutos: minutos,
+                elemento: boton
+            };
+        }
+    });
+    
+    console.log(`✅ Tiempo ${minutos} min marcado visualmente en Control de Tiempo`);
+}
+
+// ========== FUNCIÓN PARA INICIAR TIMER AUTOMÁTICAMENTE ==========
+async function iniciarTimerAutomaticamente() {
+    if (!selectedChild) {
+        await showAlert('error', 'Error', 'No hay niño seleccionado');
+        return;
+    }
+
+    if (selectedMinutes <= 0) {
+        await showAlert('error', 'Error', 'No hay tiempo asignado');
+        return;
+    }
+
+    const childId = selectedChild.id;
+    
+    // 1. CONFIGURAR EL TIMER
+    const ahora = new Date();
+    timerEndTimes[childId] = ahora.getTime() + (selectedMinutes * 60000);
+    elapsedTimes[childId] = selectedMinutes * 60;
+    isTimerRunning[childId] = true;
+    selectedChild.estado = 'Activo';
+    
+    // 2. INICIAR EL INTERVALO DEL TIMER
+    iniciarIntervaloTimer(childId);
+    
+    // 3. ACTUALIZAR LA INTERFAZ
+    updateSelectedChildInfo();
+    renderActiveChildren();
+    
+    await showAlert('success', 'Tiempo iniciado', `${selectedMinutes} minutos iniciados para ${selectedChild.nombre_completo}`);
+}
+
+async function finalizarVisitaDesdeNotificacion() {
+    if (currentTimeoutChildId) {
+        const child = activeChildren.find(c => c.id === currentTimeoutChildId);
+        if (child) {
+            selectChild(child);
+            closeTimeoutNotification();
+            await finalizarVisita();
+        }
+    }
+}
+
+// ========== FUNCIONES DE OBSERVACIONES ==========
+async function cargarHistorialObservaciones() {
+    if (!selectedChild) return;
+    const obsHistorial = document.getElementById('obs-historial');
+    if (!obsHistorial) return;
+    
+    obsHistorial.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Cargando historial...</div>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/observaciones/${selectedChild.id}`);
+        if (!response.ok) throw new Error('Error al cargar observaciones');
+        
+        const data = await response.json();
+        
+        if (data.length === 0) {
+            obsHistorial.innerHTML = '<div class="text-center py-4 text-gray-400">No hay observaciones registradas</div>';
+            return;
+        }
+        
+        obsHistorial.innerHTML = data.map(obs => `
+            <div class="obs-item p-3 mb-2 bg-white rounded shadow-sm">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-700">${formatDate(obs.fecha)}</p>
+                        <p class="text-gray-600 mt-1">${obs.observacion}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error("Error al cargar observaciones:", error);
+        obsHistorial.innerHTML = '<div class="text-center py-4 text-red-500">Error al cargar el historial</div>';
+    }
+}
+
+async function guardarObservacion() {
+    const textarea = document.getElementById('obs-texto');
+    if (!textarea) {
+        await Swal.fire('Error', 'No se encontró el campo de observación', 'error');
+        return;
+    }
+
+    const observacionTexto = textarea.value?.trim() || '';
+
+    if (!observacionTexto) {
+        await Swal.fire('Error', 'La observación no puede estar vacía', 'error');
+        return;
+    }
+
+    if (!selectedChild) {
+        await Swal.fire('Error', 'Debe seleccionar un niño primero', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/observacion`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                usuario_id: parseInt(selectedChild.id),
+                nombre: selectedChild.nombre_completo || 'Sin nombre',
+                observacion: observacionTexto
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'No se pudo guardar la observación');
+        }
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Observación guardada',
+            text: 'La observación se ha guardado correctamente',
+            timer: 2000,
+            showConfirmButton: false,
+            background: '#ffffff',
+            backdrop: `rgba(0,0,0,0.4)`
+        });
+
+        textarea.value = '';
+        await cargarHistorialObservaciones();
+
+    } catch (error) {
+        console.error('Error guardando observación:', error);
+        await Swal.fire('Error', error.message, 'error');
+    }
+}
+
+// ========== FUNCIONES DE VISITAS RECIENTES ==========
+async function mostrarVisitasRecientes() {
+    const tablaVisitas = document.getElementById('tabla-visitas-recientes');
+    
+    if (!tablaVisitas) {
+        console.error("No se encontró la tabla de visitas recientes");
+        return;
+    }
+    
+    try {
+        tablaVisitas.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center py-4">
+                    <i class="fas fa-spinner fa-spin text-blue-500"></i> Cargando visitas...
+                </td>
+            </tr>
+        `;
+
+        const response = await fetch(`${API_BASE_URL}/visitas/recientes`);
+        
+        if (!response.ok) {
+            throw new Error('Error al cargar visitas');
+        }
+
+        const visitas = await response.json();
+        
+        if (visitas.length === 0) {
+            tablaVisitas.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-gray-500">
+                        No hay visitas recientes
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        tablaVisitas.innerHTML = visitas.map(visita => {
+            const fecha = new Date(visita.fecha);
+            const nombre = visita.nombre || visita.nombre_nino || 'Sin nombre';
+            const minutos = visita.minutos || 0;
+            const precio = visita.precio || 0;
+            const fechaFormateada = formatDate(visita.fecha);
+            const dia = visita.dia || obtenerNombreDia(fecha);
+            
+            return `
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                <td class="py-3 px-4 font-medium text-gray-900">${nombre}</td>
+                <td class="py-3 px-4 text-center">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        ${minutos} min
+                    </span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                        S/ ${precio.toFixed(2)}
+                    </span>
+                </td>
+                <td class="py-3 px-4 text-gray-600">${fechaFormateada}</td>
+                <td class="py-3 px-4">
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
+                        ${dia}
+                    </span>
+                </td>
+            </tr>
+            `;
+        }).join('');
+        
+        console.log("✅ Visitas recientes cargadas:", visitas.length);
+        
+    } catch (error) {
+        console.error("❌ Error mostrando visitas recientes:", error);
+        tablaVisitas.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center py-4 text-red-500">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Error al cargar visitas
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// ========== FUNCIONES DE GASTOS ==========
+async function cargarGastos() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/gastos`);
+        if (!response.ok) throw new Error('Error al cargar gastos');
+        
+        const gastos = await response.json();
+        gastosRegistrados = gastos;
+        
+        const listaGastos = document.getElementById('lista-gastos');
+        if (!listaGastos) return;
+        
+        if (gastos.length === 0) {
+            listaGastos.innerHTML = '<div class="text-center py-4 text-gray-500">No hay gastos registrados</div>';
+            actualizarTotalesGastos();
+            renderGastosChart();
+            return;
+        }
+
+        listaGastos.innerHTML = gastos.map(gasto => `
+            <div class="gasto-item bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">${gasto.descripcion}</p>
+                        <p class="text-sm text-gray-600 mt-1">Categoría: <span class="gasto-categoria font-medium">${gasto.categoria}</span></p>
+                        ${gasto.observaciones ? `<p class="text-sm text-gray-600 mt-1">Observaciones: ${gasto.observaciones}</p>` : ''}
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-red-600">S/ ${parseFloat(gasto.monto).toFixed(2)}</p>
+                        <p class="text-sm text-gray-500">${formatDate(gasto.fecha)}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        actualizarTotalesGastos();
+        renderGastosChart();
+
+    } catch (error) {
+        console.error("Error cargando gastos:", error);
+        const listaGastos = document.getElementById('lista-gastos');
+        if (listaGastos) {
+            listaGastos.innerHTML = '<div class="text-center py-4 text-red-500">Error al cargar gastos</div>';
+        }
+    }
+}
+
+async function agregarGasto() {
+    const descripcion = document.getElementById('gasto-descripcion')?.value.trim() || '';
+    const monto = parseFloat(document.getElementById('gasto-monto')?.value) || 0;
+    const categoria = document.getElementById('gasto-categoria')?.value || '';
+    const observaciones = document.getElementById('gasto-observaciones')?.value.trim() || '';
+
+    if (!descripcion) {
+        await showAlert('error', 'Error', 'La descripción del gasto es obligatoria');
+        return;
+    }
+
+    if (monto <= 0) {
+        await showAlert('error', 'Error', 'El monto debe ser mayor a 0');
+        return;
+    }
+
+    if (!categoria) {
+        await showAlert('error', 'Error', 'Seleccione una categoría');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/gasto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                descripcion: descripcion,
+                monto: monto,
+                categoria: categoria,
+                observaciones: observaciones
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al agregar gasto');
+        }
+
+        const data = await response.json();
+        
+        const descripcionInput = document.getElementById('gasto-descripcion');
+        const montoInput = document.getElementById('gasto-monto');
+        const categoriaSelect = document.getElementById('gasto-categoria');
+        const observacionesInput = document.getElementById('gasto-observaciones');
+        
+        if (descripcionInput) descripcionInput.value = '';
+        if (montoInput) montoInput.value = '';
+        if (categoriaSelect) categoriaSelect.value = 'materiales';
+        if (observacionesInput) observacionesInput.value = '';
+        
+        await showAlert('success', 'Gasto agregado', 'El gasto se ha registrado correctamente');
+        
+        await cargarGastos();
+        
+    } catch (error) {
+        console.error("Error agregando gasto:", error);
+        await showAlert('error', 'Error', error.message);
+    }
+}
+
+function actualizarTotalesGastos() {
+    if (!gastosRegistrados || gastosRegistrados.length === 0) {
+        document.getElementById("gasto-hoy").textContent = "S/ 0.00";
+        document.getElementById("gasto-semana").textContent = "S/ 0.00";
+        document.getElementById("gasto-mes").textContent = "S/ 0.00";
+        document.getElementById("total-gastos").textContent = "0";
+        return;
+    }
+
+    const hoy = new Date();
+    const inicioSemana = new Date(hoy);
+    inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+    let totalHoy = 0;
+    let totalSemana = 0;
+    let totalMes = 0;
+
+    gastosRegistrados.forEach(g => {
+        const fecha = new Date(g.fecha);
+        const monto = parseFloat(g.monto) || 0;
+
+        if (isSameDay(fecha, hoy)) totalHoy += monto;
+        if (fecha >= inicioSemana) totalSemana += monto;
+        if (fecha >= inicioMes) totalMes += monto;
+    });
+
+    document.getElementById("gasto-hoy").textContent = `S/ ${totalHoy.toFixed(2)}`;
+    document.getElementById("gasto-semana").textContent = `S/ ${totalSemana.toFixed(2)}`;
+    document.getElementById("gasto-mes").textContent = `S/ ${totalMes.toFixed(2)}`;
+    document.getElementById("total-gastos").textContent = gastosRegistrados.length;
+}
+
+function isSameDay(d1, d2) {
+    return d1.getDate() === d2.getDate() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getFullYear() === d2.getFullYear();
+}
+
+function renderGastosChart() {
+    const ctx = document.getElementById("gastosChart");
+    if (!ctx) return;
+
+    if (!gastosRegistrados || gastosRegistrados.length === 0) {
+        if (window.gastosChartInstance) {
+            window.gastosChartInstance.destroy();
+        }
+        return;
+    }
+
+    const categorias = {};
+    gastosRegistrados.forEach(g => {
+        const categoria = g.categoria || "Otros";
+        const monto = parseFloat(g.monto) || 0;
+        categorias[categoria] = (categorias[categoria] || 0) + monto;
+    });
+
+    const labels = Object.keys(categorias);
+    const values = Object.values(categorias);
+
+    if (window.gastosChartInstance) {
+        window.gastosChartInstance.destroy();
+    }
+
+    window.gastosChartInstance = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: [
+                    "#FF9800", "#4CAF50", "#2196F3", "#9C27B0", "#F44336", "#00BCD4"
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: "bottom" }
+            }
+        }
+    });
+}
+
+// ========== FUNCIONES DE EXPORTACIÓN ==========
+async function exportarGastosExcel() {
+    if (!gastosRegistrados || gastosRegistrados.length === 0) {
+        return showAlert("info", "Sin datos", "No hay gastos para exportar");
+    }
+
+    try {
+        const data = gastosRegistrados.map(g => ({
+            "Descripción": g.descripcion || "",
+            "Monto (S/)": g.monto ? parseFloat(g.monto).toFixed(2) : "0.00",
+            "Categoría": g.categoria || "",
+            "Observaciones": g.observaciones || "",
+            "Fecha": formatDate(g.fecha),
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        
+        const colWidths = [
+            { wch: 40 },
+            { wch: 15 },
+            { wch: 20 },
+            { wch: 40 },
+            { wch: 15 }
+        ];
+        ws['!cols'] = colWidths;
+
+        if (!ws['!merges']) ws['!merges'] = [];
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cell_address = { c: C, r: 0 };
+            const cell_ref = XLSX.utils.encode_cell(cell_address);
+            if (!ws[cell_ref]) continue;
+            
+            if (!ws[cell_ref].s) ws[cell_ref].s = {};
+            ws[cell_ref].s = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "FF6B00" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+        }
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Gastos Sensory Club");
+
+        const nombreArchivo = `gastos_sensoryclub_${new Date().toISOString().split("T")[0]}.xlsx`;
+        XLSX.writeFile(wb, nombreArchivo);
+        
+        await showAlert("success", "Exportado", "Gastos exportados a Excel correctamente");
+        
+    } catch (error) {
+        console.error("Error exportando gastos a Excel:", error);
+        await showAlert("error", "Error", "No se pudieron exportar los gastos a Excel");
+    }
+}
+
+async function exportarGastosPDF() {
+    if (!gastosRegistrados || gastosRegistrados.length === 0) {
+        return showAlert("info", "Sin datos", "No hay gastos para exportar");
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        async function cargarLogo() {
+            return new Promise((resolve) => {
+                const logoImg = new Image();
+                logoImg.crossOrigin = "Anonymous";
+                
+                logoImg.onload = function() {
+                    try {
+                        if (logoImg.width > 0 && logoImg.height > 0) {
+                            console.log("Logo cargado correctamente");
+                            resolve(logoImg);
+                        } else {
+                            console.warn("Logo cargado pero dimensiones inválidas");
+                            resolve(null);
+                        }
+                    } catch (error) {
+                        console.error("Error procesando logo:", error);
+                        resolve(null);
+                    }
+                };
+                
+                logoImg.onerror = function() {
+                    console.warn("No se pudo cargar el logo, continuando sin logo");
+                    resolve(null);
+                };
+                
+                const rutasLogo = [
+                    './logo.png',
+                    './img/logo.png',
+                    './assets/logo.png',
+                    './images/logo.png',
+                    'logo.png',
+                    '/logo.png'
+                ];
+                
+                let currentIndex = 0;
+                
+                function intentarCargarSiguiente() {
+                    if (currentIndex >= rutasLogo.length) {
+                        resolve(null);
+                        return;
+                    }
+                    
+                    const ruta = rutasLogo[currentIndex];
+                    console.log(`Intentando cargar logo desde: ${ruta}`);
+                    logoImg.src = ruta;
+                    currentIndex++;
+                }
+                
+                logoImg.onerror = intentarCargarSiguiente;
+                intentarCargarSiguiente();
+            });
+        }
+
+        const logoImg = await cargarLogo();
+        
+        if (logoImg) {
+            try {
+                doc.addImage(logoImg, 'PNG', 14, 10, 30, 15);
+                console.log("Logo agregado al PDF exitosamente");
+            } catch (error) {
+                console.error("Error agregando logo al PDF:", error);
+            }
+        }
+
+        generarContenidoPDF(doc, !!logoImg);
+
+        function generarContenidoPDF(doc, tieneLogo) {
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
+            doc.text("Reportes de Gastos - SensoryClub", 105, tieneLogo ? 35 : 20, null, null, "center");
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generado el: ${new Date().toLocaleDateString('es-PE')}`, 105, tieneLogo ? 43 : 28, null, null, "center");
+
+            const tableData = gastosRegistrados.map(g => [
+                g.descripcion || "-",
+                `S/ ${parseFloat(g.monto || 0).toFixed(2)}`,
+                g.categoria || "General",
+                g.observaciones || "-",
+                formatDate(g.fecha) || new Date().toLocaleDateString('es-PE')
+            ]);
+
+            const columnStyles = {
+                0: { cellWidth: 55 },
+                1: { cellWidth: 22 },
+                2: { cellWidth: 28 },
+                3: { cellWidth: 50 },
+                4: { cellWidth: 22 }
+            };
+
+            const startY = tieneLogo ? 50 : 35;
+
+            doc.autoTable({
+                startY: startY,
+                head: [["Descripción", "Monto", "Categoría", "Observaciones", "Fecha"]],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [255, 107, 0],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    fontSize: 9
+                },
+                columnStyles: columnStyles,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 3,
+                    overflow: 'linebreak',
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
+                },
+                bodyStyles: {
+                    textColor: [60, 60, 60]
+                },
+                margin: { left: 14, right: 14 }
+            });
+
+            const totalGastos = gastosRegistrados.reduce((sum, g) => sum + parseFloat(g.monto || 0), 0);
+            const finalY = doc.lastAutoTable.finalY + 12;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Total de gastos: S/ ${totalGastos.toFixed(2)}`, 14, finalY);
+
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`SensoryClub  gastos registrados`, 105, doc.internal.pageSize.height - 10, null, null, "center");
+
+            const fecha = new Date().toISOString().split("T")[0];
+            doc.save(`reporte_gastos_sensory_club_${fecha}.pdf`);
+            
+            showAlert("success", "PDF Generado", "El reporte de gastos se exportó correctamente");
+        }
+
+    } catch (error) {
+        console.error("Error exportando gastos a PDF:", error);
+        await showAlert("error", "Error", "No se pudieron exportar los gastos a PDF");
+    }
+}
+
+async function exportarGananciasExcel() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/visitas`);
+        if (!response.ok) {
+            throw new Error('Error al cargar visitas para exportar');
+        }
+
+        const visitas = await response.json();
+        
+        if (!visitas || visitas.length === 0) {
+            return showAlert("info", "Sin datos", "No hay visitas para exportar");
+        }
+
+        const data = visitas.map(v => ({
+            "Niño": v.nombre || v.nombre_nino || "Desconocido",
+            "Minutos": v.minutos || 0,
+            "Precio (S/)": v.precio ? `S/ ${parseFloat(v.precio).toFixed(2)}` : "S/ 0.00",
+            "Fecha": formatDate(v.fecha),
+            "Día": obtenerNombreDia(new Date(v.fecha)),
+            "Tipo Visita": v.visita_gratis ? "GRATIS" : "PAGADA"
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        
+        const colWidths = [
+            { wch: 35 },
+            { wch: 12 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 }
+        ];
+        ws['!cols'] = colWidths;
+
+        if (!ws['!merges']) ws['!merges'] = [];
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cell_address = { c: C, r: 0 };
+            const cell_ref = XLSX.utils.encode_cell(cell_address);
+            if (!ws[cell_ref]) continue;
+            
+            if (!ws[cell_ref].s) ws[cell_ref].s = {};
+            ws[cell_ref].s = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "4CAF50" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+        }
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Ganancias Sensory Club");
+        
+        const nombreArchivo = `ganancias_sensoryclub_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(wb, nombreArchivo);
+        
+        await showAlert("success", "Exportado", "Datos exportados a Excel correctamente");
+        
+    } catch (error) {
+        console.error("Error exportando datos:", error);
+        await showAlert("error", "Error", "No se pudieron exportar los datos");
+    }
+}
+
+async function exportarGananciasPDF() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/visitas`);
+        if (!response.ok) {
+            throw new Error('Error al cargar visitas para exportar');
+        }
+
+        const visitas = await response.json();
+        
+        if (!visitas || visitas.length === 0) {
+            return showAlert("info", "Sin datos", "No hay visitas para exportar");
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        async function cargarLogo() {
+            return new Promise((resolve) => {
+                const logoImg = new Image();
+                logoImg.crossOrigin = "Anonymous";
+                
+                logoImg.onload = function() {
+                    try {
+                        if (logoImg.width > 0 && logoImg.height > 0) {
+                            console.log("Logo cargado correctamente");
+                            resolve(logoImg);
+                        } else {
+                            console.warn("Logo cargado pero dimensiones inválidas");
+                            resolve(null);
+                        }
+                    } catch (error) {
+                        console.error("Error procesando logo:", error);
+                        resolve(null);
+                    }
+                };
+                
+                logoImg.onerror = function() {
+                    console.warn("No se pudo cargar el logo, continuando sin logo");
+                    resolve(null);
+                };
+                
+                const rutasLogo = [
+                    'LOGO SENSORY CLUB PDF_page-0001.jpg',
+                    './LOGO SENSORY CLUB PDF_page-0001.jpg',
+                    './img/LOGO SENSORY CLUB PDF_page-0001.jpg',
+                    './assets/LOGO SENSORY CLUB PDF_page-0001.jpg',
+                    './images/LOGO SENSORY CLUB PDF_page-0001.jpg',
+                    'logo.jpg',
+                    './logo.jpg'
+                ];
+                
+                let currentIndex = 0;
+                
+                function intentarCargarSiguiente() {
+                    if (currentIndex >= rutasLogo.length) {
+                        resolve(null);
+                        return;
+                    }
+                    
+                    const ruta = rutasLogo[currentIndex];
+                    console.log(`Intentando cargar logo desde: ${ruta}`);
+                    logoImg.src = ruta;
+                    currentIndex++;
+                }
+                
+                logoImg.onerror = intentarCargarSiguiente;
+                intentarCargarSiguiente();
+            });
+        }
+
+        const logoImg = await cargarLogo();
+        
+        if (logoImg) {
+            try {
+                doc.addImage(logoImg, 'JPEG', 14, 10, 30, 15);
+                console.log("Logo agregado al PDF exitosamente");
+            } catch (error) {
+                console.error("Error agregando logo al PDF:", error);
+            }
+        }
+
+        generarContenidoPDF(doc, visitas, !!logoImg);
+
+        function generarContenidoPDF(doc, visitas, tieneLogo) {
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
+            doc.text("Reportes de Ganancias - SensoryClub", 105, tieneLogo ? 35 : 20, null, null, "center");
+
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generado el: ${new Date().toLocaleDateString('es-PE')}`, 105, tieneLogo ? 43 : 28, null, null, "center");
+
+            const tableData = visitas.map(v => [
+                v.nombre || v.nombre_nino || "Desconocido",
+                v.minutos || 0,
+                `S/ ${(v.precio || 0).toFixed(2)}`,
+                formatDate(v.fecha),
+                obtenerNombreDia(new Date(v.fecha)),
+                v.visita_gratis ? "GRATIS" : "PAGADA"
+            ]);
+
+            const columnStyles = {
+                0: { cellWidth: 40 },
+                1: { cellWidth: 18 },
+                2: { cellWidth: 22 },
+                3: { cellWidth: 22 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 15 }
+            };
+
+            const startY = tieneLogo ? 50 : 35;
+
+            doc.autoTable({
+                startY: startY,
+                head: [["Niño", "Minutos", "Precio", "Fecha", "Día", "Tipo Visita"]],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [76, 175, 80],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    fontSize: 9
+                },
+                columnStyles: columnStyles,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 3,
+                    overflow: 'linebreak',
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
+                },
+                bodyStyles: {
+                    textColor: [60, 60, 60]
+                },
+                margin: { left: 14, right: 14 }
+            });
+
+            const totalGanancias = visitas.reduce((sum, v) => sum + parseFloat(v.precio || 0), 0);
+            const totalVisitas = visitas.length;
+            const visitasGratis = visitas.filter(v => v.visita_gratis).length;
+            const visitasPagadas = totalVisitas - visitasGratis;
+
+            const finalY = doc.lastAutoTable.finalY + 10;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Total Ganancias: S/ ${totalGanancias.toFixed(2)}`, 14, finalY);
+            doc.text(`Total Visitas: ${totalVisitas}`, 14, finalY + 8);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(80, 80, 80);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Visitas pagadas: ${visitasPagadas}`, 14, finalY + 18);
+            doc.text(`Visitas gratis: ${visitasGratis}`, 14, finalY + 26);
+
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Sensory Club - Reporte de Ganancias - Página 1`, 105, doc.internal.pageSize.height - 10, null, null, "center");
+
+            const fecha = new Date().toISOString().split("T")[0];
+            doc.save(`ganancias_sensoryclub_${fecha}.pdf`);
+            
+            showAlert("success", "PDF Generado", "El reporte de ganancias se exportó correctamente");
+        }
+
+    } catch (error) {
+        console.error("Error exportando ganancias a PDF:", error);
+        await showAlert("error", "Error", "No se pudieron exportar las ganancias a PDF");
+    }
+}
+
+// ========== FUNCIONES DE GANANCIAS ==========
+async function cargarEstadisticasGanancias() {
+    try {
+        console.log("📊 Cargando estadísticas de ganancias...");
+        
+        const response = await fetch(`${API_BASE_URL}/visitas`);
+        
+        if (!response.ok) {
+            throw new Error('Error al cargar visitas para estadísticas');
+        }
+
+        const todasLasVisitas = await response.json();
+        
+        const hoy = new Date();
+        const inicioHoy = new Date(hoy);
+        inicioHoy.setHours(0, 0, 0, 0);
+        
+        const inicioSemana = new Date(hoy);
+        inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+        inicioSemana.setHours(0, 0, 0, 0);
+        
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        inicioMes.setHours(0, 0, 0, 0);
+
+        let gananciaHoy = 0;
+        let gananciaSemana = 0;
+        let gananciaMes = 0;
+        let visitasHoy = 0;
+
+        todasLasVisitas.forEach(visita => {
+            const fechaVisita = new Date(visita.fecha);
+            const precio = parseFloat(visita.precio) || 0;
+            
+            if (fechaVisita >= inicioHoy) {
+                gananciaHoy += precio;
+                visitasHoy++;
+            }
+            
+            if (fechaVisita >= inicioSemana) {
+                gananciaSemana += precio;
+            }
+            
+            if (fechaVisita >= inicioMes) {
+                gananciaMes += precio;
+            }
+        });
+
+        document.getElementById('ganancia-hoy').textContent = `S/ ${gananciaHoy.toFixed(2)}`;
+        document.getElementById('ganancia-semana').textContent = `S/ ${gananciaSemana.toFixed(2)}`;
+        document.getElementById('ganancia-mes').textContent = `S/ ${gananciaMes.toFixed(2)}`;
+        document.getElementById('total-visitas').textContent = visitasHoy;
+        
+        console.log("✅ Estadísticas actualizadas correctamente");
+        
+    } catch (error) {
+        console.error("❌ Error cargando estadísticas:", error);
+        
+        document.getElementById('ganancia-hoy').textContent = 'S/ 0.00';
+        document.getElementById('ganancia-semana').textContent = 'S/ 0.00';
+        document.getElementById('ganancia-mes').textContent = 'S/ 0.00';
+        document.getElementById('total-visitas').textContent = '0';
+        
+        await showAlert('error', 'Error', 'No se pudieron cargar las estadísticas');
+    }
+}
+
+// ========== FUNCIONES AUXILIARES ==========
+function toggleObsBtn() {
+    const obsBtn = document.getElementById('abrir-observaciones');
+    if (!obsBtn) return;
+    
+    if (selectedChild) {
+        obsBtn.classList.remove('hidden');
+    } else {
+        obsBtn.classList.add('hidden');
+    }
+}
+
+async function verificarAlarmaActiva() {
+    if (!selectedChild) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/alarmas-activas`);
+        if (!response.ok) return;
+        
+        const alarmas = await response.json();
+        const alarmaActiva = alarmas.find(a => a.usuario_id === selectedChild.id);
+        
+        const desactivarAlarmaBtn = document.getElementById('desactivar-alarma-btn');
+        if (desactivarAlarmaBtn) {
+            if (alarmaActiva) {
+                desactivarAlarmaBtn.classList.remove('hidden');
+            } else {
+                desactivarAlarmaBtn.classList.add('hidden');
+            }
+        }
+    } catch (error) {
+        console.error("Error verificando alarma activa:", error);
+    }
+}
+
+async function desactivarAlarmaManual() {
+    if (!selectedChild) {
+        await showAlert('error', 'Error', 'Seleccione un niño primero');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/desactivar-alarma`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: selectedChild.id
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al desactivar alarma');
+        }
+
+        const data = await response.json();
+        
+        if (currentTimeoutChildId === selectedChild.id) {
+            closeTimeoutNotification();
+        }
+        
+        if (timerIntervals[selectedChild.id]) {
+            clearInterval(timerIntervals[selectedChild.id]);
+            delete timerIntervals[selectedChild.id];
+        }
+        
+        isTimerRunning[selectedChild.id] = false;
+        selectedChild.estado = 'Inactivo';
+        
+        const desactivarAlarmaBtn = document.getElementById('desactivar-alarma-btn');
+        if (desactivarAlarmaBtn) {
+            desactivarAlarmaBtn.classList.add('hidden');
+        }
+        
+        updateSelectedChildInfo();
+        renderActiveChildren();
+        
+        await showAlert('success', 'Alarma desactivada', 'La alarma ha sido desactivada manualmente');
+        
+    } catch (error) {
+        console.error("Error desactivando alarma:", error);
+        await showAlert('error', 'Error', 'No se pudo desactivar la alarma');
+    }
+}
+
+// ========== FUNCIONES DE PAUSA Y REANUDACIÓN ==========
+// ========== FUNCIONES DE PAUSA Y REANUDACIÓN ==========
+async function pauseTimer() {
+    if (!selectedChild) {
+        await showAlert('error', 'Error', 'Seleccione un niño primero');
+        return;
+    }
+
+    const id = selectedChild.id;
+    
+    if (isTimerRunning[id] && timerIntervals[id]) {
+        clearInterval(timerIntervals[id]);
+        delete timerIntervals[id];
+        isTimerRunning[id] = false;
+        pausedTimes[id] = elapsedTimes[id];
+        selectedChild.estado = 'Pausado';
+        
+        const childInActiveList = activeChildren.find(c => c.id === id);
+        if (childInActiveList) {
+            childInActiveList.estado = 'Pausado';
+        }
+        
+        await showAlert('info', 'Tiempo pausado', `El tiempo de ${selectedChild.nombre_completo} ha sido pausado`);
+        
+        updateSelectedChildInfo();
+        renderActiveChildren();
+        
+    } else {
+        await showAlert('info', 'Tiempo pausado', `El tiempo de ${selectedChild.nombre_completo} ya está pausado`);
+    }
+}
+
+async function resumeTimer() {
+    if (!selectedChild) {
+        await showAlert('error', 'Error', 'Seleccione un niño primero');
+        return;
+    }
+
+    const id = selectedChild.id;
+    
+    if (!isTimerRunning[id] && pausedTimes[id] !== undefined) {
+        const ahora = new Date();
+        
+        // ✅ ACTUALIZAR SOLO LA HORA ESTIMADA DE SALIDA
+        timerEndTimes[id] = ahora.getTime() + (pausedTimes[id] * 1000);
+        estimatedEndTimes[id] = new Date(timerEndTimes[id]);
+        
+        isTimerRunning[id] = true;
+        selectedChild.estado = 'Activo';
+        
+        if (timerIntervals[id]) {
+            clearInterval(timerIntervals[id]);
+        }
+        
+        iniciarIntervaloTimer(id);
+        
+        delete pausedTimes[id];
+        
+        await showAlert('success', 'Tiempo reanudado', 
+            `El tiempo de ${selectedChild.nombre_completo} ha sido reanudado.\nNueva hora estimada de salida: ${formatHour12(estimatedEndTimes[id])}`);
+        
+        // ✅ ACTUALIZAR LA INTERFAZ
+        updateSelectedChildInfo();
+        renderActiveChildren();
+        
+    } else if (isTimerRunning[id]) {
+        await showAlert('info', 'Tiempo en marcha', `El tiempo de ${selectedChild.nombre_completo} ya está en marcha`);
+    } else {
+        await showAlert('info', 'Sin tiempo pausado', `No hay tiempo pausado para ${selectedChild.nombre_completo}`);
+    }
+}
+
+// ========== FUNCIONES DE REGISTRO Y EDICIÓN ==========
+function openEditModal(child) {
+    const editModal = document.getElementById('edit-modal');
+    if (!child || !editModal) return;
+
+    const editDni = document.getElementById('edit-dni');
+    const editName = document.getElementById('edit-name');
+    const editBirthdate = document.getElementById('edit-birthdate');
+    const editAge = document.getElementById('edit-age');
+    const editMonths = document.getElementById('edit-months');
+    const editGuardianName = document.getElementById('edit-guardian-name');
+    const editPhoneMom = document.getElementById('edit-phone-mom');
+    const editPhoneDad = document.getElementById('edit-phone-dad');
+    const editDistrict = document.getElementById('edit-district');
+
+    if (editDni) editDni.value = child.dni && !child.dni.startsWith('SIN-DNI') ? child.dni : '';
+    if (editName) editName.value = child.nombre_completo || '';
+    if (editBirthdate) editBirthdate.value = child.fecha_nacimiento || '';
+    if (editAge) editAge.value = child.edad || '';
+    if (editMonths) editMonths.value = child.meses || '';
+    if (editGuardianName) editGuardianName.value = child.nombre_apoderado || '';
+    if (editPhoneMom) editPhoneMom.value = child.telefono_mama || '';
+    if (editPhoneDad) editPhoneDad.value = child.telefono_papa || '';
+    if (editDistrict) editDistrict.value = child.distrito || '';
+    
+    const editGenderMasculino = document.getElementById('edit-gender-masculino');
+    const editGenderFemenino = document.getElementById('edit-gender-femenino');
+    
+    if (editGenderMasculino && editGenderFemenino) {
+        editGenderMasculino.checked = child.genero === 'Masculino';
+        editGenderFemenino.checked = child.genero === 'Femenino';
+    }
+    
+    editModal.classList.remove('hidden');
+    if (editName) editName.focus();
+}
+
+async function confirmEdit() {
+    const id = selectedChild?.id;
+    if (!id) {
+        await showAlert('error', 'Error', 'No hay niño seleccionado');
+        return;
+    }
+
+    const editName = document.getElementById('edit-name');
+    const nombre = editName ? editName.value.trim() : '';
+    
+    if (!nombre) {
+        await showAlert('error', 'Error', 'El nombre completo es obligatorio');
+        return;
+    }
+
+    try {
+        const confirmEditBtn = document.getElementById('confirm-edit-btn');
+        confirmEditBtn.disabled = true;
+        confirmEditBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+        const editDni = document.getElementById('edit-dni');
+        const editBirthdate = document.getElementById('edit-birthdate');
+        const editAge = document.getElementById('edit-age');
+        const editMonths = document.getElementById('edit-months');
+        const editGuardianName = document.getElementById('edit-guardian-name');
+        const editPhoneMom = document.getElementById('edit-phone-mom');
+        const editPhoneDad = document.getElementById('edit-phone-dad');
+        const editDistrict = document.getElementById('edit-district');
+        
+        const editGenderMasculino = document.getElementById('edit-gender-masculino');
+        const editGenderFemenino = document.getElementById('edit-gender-femenino');
+        
+        let genero = '';
+        if (editGenderMasculino && editGenderMasculino.checked) {
+            genero = 'Masculino';
+        } else if (editGenderFemenino && editGenderFemenino.checked) {
+            genero = 'Femenino';
+        }
+        
+        const dniValue = editDni ? editDni.value.trim() : '';
+        const dniFinal = dniValue ? dniValue : (selectedChild.dni && !selectedChild.dni.startsWith('SIN-DNI') ? selectedChild.dni : `SIN-DNI-${Date.now()}`);
+
+        const nino_data = {
+            id: parseInt(id),
+            dni: dniFinal,
+            nombre: nombre,
+            fecha_nacimiento: editBirthdate ? editBirthdate.value : '',
+            edad: parseInt(editAge ? editAge.value : 0) || 0,
+            meses: parseInt(editMonths ? editMonths.value : 0) || 0,
+            genero: genero,
+            nombre_apoderado: editGuardianName ? editGuardianName.value.trim() : null,
+            telefono_mama: editPhoneMom ? editPhoneMom.value.trim() : null,
+            telefono_papa: editPhoneDad ? editPhoneDad.value.trim() : null,
+            distrito: editDistrict ? editDistrict.value.trim() : null
+        };
+
+        const response = await fetch(`${API_BASE_URL}/actualizar-nino`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nino_data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al actualizar');
+        }
+
+        const data = await response.json();
+        
+        const index = activeChildren.findIndex(c => c.id === id);
+        if (index !== -1) {
+            const estadoActual = activeChildren[index].estado;
+            activeChildren[index] = { 
+                ...activeChildren[index], 
+                ...data.nino, 
+                estado: estadoActual
+            };
+        }
+        
+        if (selectedChild && selectedChild.id === id) {
+            const estadoActual = selectedChild.estado;
+            selectedChild = { 
+                ...selectedChild, 
+                ...data.nino, 
+                estado: estadoActual
+            };
+            updateSelectedChildInfo();
+        }
+
+        renderActiveChildren();
+        const editModal = document.getElementById('edit-modal');
+        if (editModal) editModal.classList.add('hidden');
+        await showAlert('success', 'Éxito', 'Datos actualizados correctamente');
+        
+    } catch (error) {
+        console.error("Error al actualizar:", error);
+        await showAlert('error', 'Error', error.message);
+    } finally {
+        const confirmEditBtn = document.getElementById('confirm-edit-btn');
+        confirmEditBtn.disabled = false;
+        confirmEditBtn.innerHTML = 'Guardar Cambios';
+    }
+}
+
+async function registerChild() {
+    const registerName = document.getElementById('register-name');
+    const nombre = registerName ? registerName.value.trim() : '';
+    
+    if (!nombre) {
+        await showAlert('error', 'Error', 'El nombre completo es obligatorio');
+        return;
+    }
+
+    try {
+        const confirmRegisterBtn = document.getElementById('confirm-register-btn');
+        confirmRegisterBtn.disabled = true;
+        confirmRegisterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+
+        const registerDni = document.getElementById('register-dni');
+        const registerBirthdate = document.getElementById('register-birthdate');
+        const registerAge = document.getElementById('register-age');
+        const registerMonths = document.getElementById('register-months');
+        const registerGuardianName = document.getElementById('register-guardian-name');
+        const registerPhoneMom = document.getElementById('register-phone-mom');
+        const registerPhoneDad = document.getElementById('register-phone-dad');
+        const registerDistrict = document.getElementById('register-district');
+        
+        const registerGenderMasculino = document.getElementById('register-gender-masculino');
+        const registerGenderFemenino = document.getElementById('register-gender-femenino');
+        
+        let genero = '';
+        if (registerGenderMasculino && registerGenderMasculino.checked) {
+            genero = 'Masculino';
+        } else if (registerGenderFemenino && registerGenderFemenino.checked) {
+            genero = 'Femenino';
+        }
+        
+        const dniValue = registerDni ? registerDni.value.trim() : '';
+        const dniFinal = dniValue ? dniValue : `SIN-DNI-${Date.now()}`;
+
+        const response = await fetch(`${API_BASE_URL}/registrar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                dni: dniFinal,
+                nombre: nombre,
+                fecha_nacimiento: registerBirthdate ? registerBirthdate.value : '',
+                edad: registerAge ? parseInt(registerAge.value) || 0 : 0,
+                meses: registerMonths ? parseInt(registerMonths.value) || 0 : 0,
+                genero: genero,
+                nombre_apoderado: registerGuardianName ? registerGuardianName.value.trim() : null,
+                telefono_mama: registerPhoneMom ? registerPhoneMom.value.trim() : null,
+                telefono_papa: registerPhoneDad ? registerPhoneDad.value.trim() : null,
+                distrito: registerDistrict ? registerDistrict.value.trim() : null
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en el servidor');
+        }
+
+        const data = await response.json();
+        
+        if (!data.usuario) {
+            throw new Error('No se recibió información del usuario registrado');
+        }
+
+        data.usuario.estado = 'Inactivo';
+        data.usuario.minutos_asignados = 0;
+        data.usuario.sesiones_totales = 0;
+        data.usuario.sesiones_pagadas = 0;
+
+        elapsedTimes[data.usuario.id] = 0;
+        selectedMinutes = 0;
+        isTimerRunning[data.usuario.id] = false;
+        originalStartTimes[data.usuario.id] = null;
+        activeChildren.push(data.usuario);
+        renderActiveChildren();
+        selectChild(data.usuario);
+
+        await showAlert(
+            'success', 
+            'Registro exitoso', 
+            `Se ha registrado a ${data.usuario.nombre_completo}.`
+        );
+        
+        const registerModal = document.getElementById('register-modal');
+        if (registerModal) {
+            registerModal.classList.add('hidden');
+        }
+        const searchTerm = document.getElementById('search-term');
+        if (searchTerm) {
+            searchTerm.value = data.usuario.dni || data.usuario.nombre_completo;
+            searchTerm.select();
+        }
+        
+     } catch (error) {
+        console.error("Error en registerUser:", error);
+        await showAlert('error', 'Error', error.message);
+    } finally {
+        const confirmRegisterBtn = document.getElementById('confirm-register-btn');
+        confirmRegisterBtn.disabled = false;
+        confirmRegisterBtn.innerHTML = 'Registrar';
+    }
+}
+
+// ========== VALIDACIONES ==========
+function validateNumbersOnly(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
+    input.addEventListener('keypress', function(e) {
+        const char = String.fromCharCode(e.keyCode || e.which);
+        if (!/[\d]/.test(char)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+
+function validateLettersOnly(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+    
+    input.addEventListener('keypress', function(e) {
+        const char = String.fromCharCode(e.keyCode || e.which);
+        if (!/[\sa-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(char)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+
+function validateDNI(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length > 8) {
+            this.value = this.value.slice(0, 8);
+        }
+    });
+    
+    input.addEventListener('keypress', function(e) {
+        const char = String.fromCharCode(e.keyCode || e.which);
+        if (!/[\d]/.test(char)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+
+function validatePhone(input) {
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length > 9) {
+            this.value = this.value.slice(0, 9);
+        }
+    });
+    
+    input.addEventListener('keypress', function(e) {
+        const char = String.fromCharCode(e.keyCode || e.which);
+        if (!/[\d]/.test(char)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+
+// ========== INICIALIZACIÓN ==========
+function inicializarAplicacion() {
+    activeChildren = [];
+    selectedChild = null;
+    timerIntervals = {};
+    elapsedTimes = {};
+    isTimerRunning = {};
+    assignedTimes = {};
+    currentTimeoutChildId = null;
+    originalStartTimes = {};
+    estimatedEndTimes = {};
+    visitasGratis = {};
+    timeoutNotificationVisible = false;
+    pausedTimes = {};
+    selectedMinutes = 0;
+    timerEndTimes = {};
+    visitasPagadas = {};
+    visitasRegistradas = [];
+    gastosRegistrados = [];
+    gananciasChart = null;
+    tiemposChart = null;
+    gastosChart = null;
+    gananciasAccesoAutorizado = false;
+    selectedTimes = {};
+    
+    console.log("✅ Aplicación inicializada correctamente");
+}
+
+// ========== EVENT LISTENERS ==========
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarAplicacion();
+
+    // Aplicar validaciones
+    const mainNameInput = document.getElementById('register-name');
+    const mainDniInput = document.getElementById('register-dni');
+    const mainAgeInput = document.getElementById('register-age');
+    const mainMonthsInput = document.getElementById('register-months');
+    const mainGuardianInput = document.getElementById('register-guardian-name');
+    const mainPhoneMomInput = document.getElementById('register-phone-mom');
+    const mainPhoneDadInput = document.getElementById('register-phone-dad');
+    const mainDistrictInput = document.getElementById('register-district');
+
+    if (mainNameInput) validateLettersOnly(mainNameInput);
+    if (mainDniInput) validateDNI(mainDniInput);
+    if (mainAgeInput) validateNumbersOnly(mainAgeInput);
+    if (mainMonthsInput) validateNumbersOnly(mainMonthsInput);
+    if (mainGuardianInput) validateLettersOnly(mainGuardianInput);
+    if (mainPhoneMomInput) validatePhone(mainPhoneMomInput);
+    if (mainPhoneDadInput) validatePhone(mainPhoneDadInput);
+    if (mainDistrictInput) validateLettersOnly(mainDistrictInput);
+
+    // Cerrar modal de registro
+    const closeModalBtn = document.querySelector('.close-modal');
+    const cancelRegisterBtn = document.getElementById('cancel-register-btn');
+
+    function closeRegisterModal() {
+        const registerModal = document.getElementById('register-modal');
+        if (registerModal) {
+            registerModal.classList.add('hidden');
+        }
+        const registerForm = document.getElementById('register-child-form');
+        if (registerForm) {
+            registerForm.reset();
+        }
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeRegisterModal);
+    }
+
+    if (cancelRegisterBtn) {
+        cancelRegisterBtn.addEventListener('click', closeRegisterModal);
+    }
+
+    // Login
+    const loginBtn = document.getElementById('login-btn');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginScreen = document.getElementById('login-screen');
+    const mainSystem = document.getElementById('main-system');
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', async () => {
+            if (usernameInput.value === "admin" && passwordInput.value === "admin123") {
+                loginScreen.classList.add('hidden');
+                mainSystem.classList.remove('hidden');
+                
+                renderActiveChildren();
+                
+                const searchTerm = document.getElementById('search-term');
+                if (searchTerm) searchTerm.focus();
+            } else {
+                await showAlert('error', 'Error', 'Credenciales incorrectas');
+            }
+        });
+    }
+
+    // Logout
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            mainSystem.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            activeChildren = [];
+            selectedChild = null;
+            timerIntervals = {};
+            elapsedTimes = {};
+            isTimerRunning = {};
+            assignedTimes = {};
+            currentTimeoutChildId = null;
+            originalStartTimes = {};
+            estimatedEndTimes = {};
+            visitasGratis = {};
+            pausedTimes = {};
+            timerEndTimes = {};
+            visitasPagadas = {};
+            selectedTimes = {};
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            if (usernameInput) usernameInput.focus();
+        });
+    }
+
+    // Búsqueda
+    const searchTerm = document.getElementById('search-term');
+    const searchBtn = document.getElementById('search-btn');
+    const clearSearchBtn = document.getElementById('clear-search');
+
+    if (searchTerm) {
+        searchTerm.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (searchBtn) searchBtn.click();
+            }
+        });
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', async () => {
+            const termino = searchTerm.value.trim();
+            if (!termino) {
+                await showAlert('error', 'Error', 'Ingrese un DNI o nombre para buscar');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/buscar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ termino })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la búsqueda');
+                }
+
+                const users = await response.json();
+                
+                if (users.length === 0) {
+                    await showAlert('info', 'No encontrado', 'El niño no está registrado en la base de datos');
+                    const registerDni = document.getElementById('register-dni');
+                    const registerName = document.getElementById('register-name');
+                    const registerBirthdate = document.getElementById('register-birthdate');
+                    const registerAge = document.getElementById('register-age');
+                    const registerMonths = document.getElementById('register-months');
+                    const registerGuardianName = document.getElementById('register-guardian-name');
+                    const registerPhoneMom = document.getElementById('register-phone-mom');
+                    const registerPhoneDad = document.getElementById('register-phone-dad');
+                    const registerDistrict = document.getElementById('register-district');
+                    
+                    if (registerDni) registerDni.value = termino.match(/^\d+$/) ? termino : '';
+                    if (registerName) registerName.value = termino.match(/^[a-zA-Z\s]+$/) ? termino : '';
+                    if (registerBirthdate) registerBirthdate.value = '';
+                    if (registerAge) registerAge.value = '';
+                    if (registerMonths) registerMonths.value = '';
+                    if (registerGuardianName) registerGuardianName.value = '';
+                    if (registerPhoneMom) registerPhoneMom.value = '';
+                    if (registerPhoneDad) registerPhoneDad.value = '';
+                    if (registerDistrict) registerDistrict.value = '';
+                    
+                    const registerModal = document.getElementById('register-modal');
+                    if (registerModal) {
+                        registerModal.classList.remove('hidden');
+                        if (registerName) registerName.focus();
+                    }
+                    return;
+                }
+
+                if (users.length > 1) {
+                    const { value: selectedUser } = await Swal.fire({
+                        title: 'Seleccione un niño',
+                        input: 'select',
+                        inputOptions: users.reduce((options, user, index) => {
+                            options[index] = `${user.nombre_completo} ${user.dni && !user.dni.startsWith('SIN-DNI') ? `(DNI: ${user.dni})` : ''}`;
+                            return options;
+                        }, {}),
+                        inputPlaceholder: 'Seleccione una opción',
+                        showCancelButton: true,
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'Debe seleccionar un niño';
+                            }
+                        },
+                        background: '#ffffff',
+                        backdrop: `rgba(0,0,0,0.4)`
+                    });
+
+                    if (selectedUser === undefined) return;
+                    
+                    const user = users[selectedUser];
+                    addChildToActiveList(user);
+                } else {
+                    const user = users[0];
+                    addChildToActiveList(user);
+                }
+            } catch (error) {
+                console.error("Error al buscar usuario:", error);
+                await showAlert('error', 'Error', error.message);
+            }
+        });
+    }
+
+    // Nuevo usuario
+    const newUserBtn = document.getElementById('new-user-btn');
+    if (newUserBtn) {
+        newUserBtn.addEventListener('click', async () => {
+            if (activeChildren.length >= MAX_CHILDREN) {
+                await showAlert('error', 'Límite alcanzado', `Solo puedes tener ${MAX_CHILDREN} niños activos a la vez`);
+                return;
+            }
+
+            const searchTerm = document.getElementById('search-term');
+            if (searchTerm) searchTerm.value = '';
+            const clearSearchBtn = document.getElementById('clear-search');
+            if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+            const registerModal = document.getElementById('register-modal');
+            if (registerModal) {
+                registerModal.classList.remove('hidden');
+                const registerDni = document.getElementById('register-dni');
+                const registerName = document.getElementById('register-name');
+                const registerBirthdate = document.getElementById('register-birthdate');
+                const registerAge = document.getElementById('register-age');
+                const registerMonths = document.getElementById('register-months');
+                const registerGuardianName = document.getElementById('register-guardian-name');
+                const registerPhoneMom = document.getElementById('register-phone-mom');
+                const registerPhoneDad = document.getElementById('register-phone-dad');
+                const registerDistrict = document.getElementById('register-district');
+                
+                if (registerDni) registerDni.value = '';
+                if (registerName) registerName.value = '';
+                if (registerBirthdate) registerBirthdate.value = '';
+                if (registerAge) registerAge.value = '';
+                if (registerMonths) registerMonths.value = '';
+                if (registerGuardianName) registerGuardianName.value = '';
+                if (registerPhoneMom) registerPhoneMom.value = '';
+                if (registerPhoneDad) registerPhoneDad.value = '';
+                if (registerDistrict) registerDistrict.value = '';
+                if (registerName) registerName.focus();
+            }
+        });
+    }
+
+    // Confirmar registro
+    const confirmRegisterBtn = document.getElementById('confirm-register-btn');
+    if (confirmRegisterBtn) {
+        confirmRegisterBtn.addEventListener('click', registerChild);
+    }
+
+    // Edición
+    const confirmEditBtn = document.getElementById('confirm-edit-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+    if (confirmEditBtn) {
+        confirmEditBtn.addEventListener('click', confirmEdit);
+    }
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', () => {
+            const editModal = document.getElementById('edit-modal');
+            if (editModal) editModal.classList.add('hidden');
+        });
+    }
+
+    // Observaciones
+    const abrirObservacionesBtn = document.getElementById('abrir-observaciones');
+    const cerrarObservacionesBtn = document.getElementById('cerrar-observaciones');
+    const guardarObservacionBtn = document.getElementById('guardar-observacion');
+
+    if (abrirObservacionesBtn) {
+        abrirObservacionesBtn.addEventListener('click', async () => {
+            if (!selectedChild) return;
+            const obsNombre = document.getElementById('obs-nombre');
+            if (obsNombre) obsNombre.textContent = selectedChild.nombre_completo;
+            const obsTexto = document.getElementById('obs-texto');
+            if (obsTexto) obsTexto.value = '';
+            const observacionesModal = document.getElementById('observaciones-modal');
+            if (observacionesModal) {
+                observacionesModal.classList.remove('hidden');
+                await cargarHistorialObservaciones();
+            }
+        });
+    }
+
+    if (cerrarObservacionesBtn) {
+        cerrarObservacionesBtn.addEventListener('click', () => {
+            const observacionesModal = document.getElementById('observaciones-modal');
+            if (observacionesModal) observacionesModal.classList.add('hidden');
+        });
+    }
+
+    if (guardarObservacionBtn) {
+        guardarObservacionBtn.addEventListener('click', guardarObservacion);
+    }
+
+    // Time shortcuts - CORREGIDOS
+    const timeShortcuts = document.querySelectorAll('.time-shortcut');
+    timeShortcuts.forEach(shortcut => {
+        shortcut.addEventListener('click', async function() {
+            if (!selectedChild) {
+                await showAlert('error', 'Error', 'Seleccione un niño primero');
+                return;
+            }
+
+            const minutos = parseInt(this.getAttribute('data-minutes'));
+            const esGratis = this.getAttribute('data-gratis') === 'true';
+            
+            // ✅ USAR LA NUEVA FUNCIÓN CORREGIDA
+            await asignarTiempoDirecto(minutos, esGratis, this);
+        });
+    });
+
+    // Botón de inicio - CORREGIDO
+   // Botón de inicio - CORREGIDO
+const startBtn = document.getElementById('start-btn');
+if (startBtn) {
+    startBtn.addEventListener('click', async () => {
+        if (!selectedChild) {
+            await showAlert('error', 'Error', 'Seleccione un niño primero');
+            return;
+        }
+
+        if (selectedMinutes <= 0) {
+            await showAlert('error', 'Error', 'Seleccione un tiempo primero');
+            return;
+        }
+
+        const childId = selectedChild.id;
+        
+        // ✅ GUARDAR HORA EXACTA CUANDO SE INICIA EL TIEMPO
+        const ahora = new Date();
+        originalStartTimes[childId] = ahora;
+        estimatedEndTimes[childId] = new Date(ahora.getTime() + (selectedMinutes * 60000));
+        
+        // 2. CONFIGURAR EL TIMER
+        timerEndTimes[childId] = ahora.getTime() + (selectedMinutes * 60000);
+        elapsedTimes[childId] = selectedMinutes * 60;
+        isTimerRunning[childId] = true;
+        selectedChild.estado = 'Activo';
+        
+        // 3. INICIAR EL INTERVALO DEL TIMER
+        iniciarIntervaloTimer(childId);
+        
+        // 4. ACTUALIZAR LA INTERFAZ
+        updateSelectedChildInfo();
+        renderActiveChildren();
+        
+        await showAlert('success', 'Tiempo iniciado', `${selectedMinutes} minutos iniciados para ${selectedChild.nombre_completo}`);
+    });
+}
+
+    // Botón para desactivar alarma manualmente
+    const desactivarAlarmaBtn = document.getElementById('desactivar-alarma-btn');
+    if (desactivarAlarmaBtn) {
+        desactivarAlarmaBtn.addEventListener('click', desactivarAlarmaManual);
+    }
+
+    // Controles de tiempo
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
+
+    if (pauseBtn) {
+        pauseBtn.addEventListener('click', pauseTimer);
+    }
+
+    if (resumeBtn) {
+        resumeBtn.addEventListener('click', resumeTimer);
+    }
+
+    // Notificación de tiempo
+    const closeTimeoutBtn = document.getElementById('close-timeout-notification');
+    if (closeTimeoutBtn) {
+        closeTimeoutBtn.addEventListener('click', closeTimeoutNotification);
+    }
+
+    // Limpiar búsqueda
+    if (searchTerm && clearSearchBtn) {
+        searchTerm.addEventListener('input', function () {
+            clearSearchBtn.classList.toggle('hidden', this.value.length === 0);
+        });
+
+        clearSearchBtn.addEventListener('click', function () {
+            searchTerm.value = '';
+            searchTerm.focus();
+            this.classList.add('hidden');
+        });
+    }
+
+    // Pestañas
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            cambiarPestana(tabId);
+        });
+    });
+
+    // Botón de finalizar visita
+    const finalizarVisitaBtn = document.getElementById('finalizar-visita-btn');
+    if (finalizarVisitaBtn) {
+        finalizarVisitaBtn.addEventListener('click', finalizarVisita);
+    }
+    
+    // Botón de editar niño
+    const editarNinoBtn = document.getElementById('editar-nino-btn');
+    if (editarNinoBtn) {
+        editarNinoBtn.addEventListener('click', () => {
+            if (selectedChild) {
+                openEditModal(selectedChild);
+            } else {
+                showAlert('error', 'Error', 'Seleccione un niño primero');
+            }
+        });
+    }
+
+    // ========== EVENT LISTENERS PARA GASTOS ==========
+    
+    // Botón para agregar gasto
+    const agregarGastoBtn = document.getElementById('agregar-gasto-btn');
+    if (agregarGastoBtn) {
+        agregarGastoBtn.addEventListener('click', agregarGasto);
+    }
+
+    // Botón para exportar gastos a Excel
+    const exportarGastosBtn = document.getElementById('exportar-gastos');
+    if (exportarGastosBtn) {
+        exportarGastosBtn.addEventListener('click', exportarGastosExcel);
+    }
+
+    // Botón para exportar gastos a PDF
+    const exportarPdfBtn = document.getElementById('exportar-pdf');
+    if (exportarPdfBtn) {
+        exportarPdfBtn.addEventListener('click', exportarGastosPDF);
+    }
+
+    // Cargar gastos cuando se cambia a la pestaña de gastos
+    const gastosTabBtn = document.querySelector('[data-tab="gastos"]');
+    if (gastosTabBtn) {
+        gastosTabBtn.addEventListener('click', function() {
+            cargarGastos();
+        });
+    }
+
+    // Permitir Enter en el formulario de gastos
+    const gastoForm = document.getElementById('gasto-form');
+    if (gastoForm) {
+        gastoForm.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                agregarGasto();
+            }
+        });
+    }
+
+    // ========== EVENT LISTENERS PARA GANANCIAS ==========
+    
+    // Botón para exportar ganancias a Excel
+    const exportarDatosBtn = document.getElementById('exportar-datos');
+    if (exportarDatosBtn) {
+        exportarDatosBtn.addEventListener('click', exportarGananciasExcel);
+    }
+
+    // Botón para exportar ganancias a PDF
+    const exportarPdfGananciasBtn = document.getElementById('exportar-pdf-ganancias');
+    if (exportarPdfGananciasBtn) {
+        exportarPdfGananciasBtn.addEventListener('click', exportarGananciasPDF);
+    }
+
+    // Focus inicial
+    if (!loginScreen.classList.contains('hidden') && usernameInput) {
+        usernameInput.focus();
+    }
+});
+
+// ========== FUNCIONALIDAD COMPLETA DE LA PESTAÑA GANANCIAS ==========
+document.addEventListener("DOMContentLoaded", () => {
+    const loginSection = document.getElementById("ganancias-login");
+    const panelGanancias = document.getElementById("ganancias-panel");
+    const inputPassword = document.getElementById("ganancias-password");
+    const btnLogin = document.getElementById("ganancias-login-btn");
+    const tbodyVisitas = document.getElementById("visitas-recientes");
+
+    // Acceso al panel
+    if (btnLogin) {
+        btnLogin.addEventListener("click", () => {
+            const password = inputPassword.value.trim();
+            if (password === GANANCIAS_PASSWORD) {
+                gananciasAccesoAutorizado = true;
+                loginSection.classList.add("hidden");
+                panelGanancias.classList.remove("hidden");
+                showAlert("success", "Acceso concedido", "Bienvenido al panel de ganancias");
+                actualizarPanelGananciasCompleto();
+            } else {
+                showAlert("error", "Contraseña incorrecta", "Inténtelo nuevamente");
+            }
+        });
+    }
+
+    // Función para actualizar el panel completo de ganancias
+    async function actualizarPanelGananciasCompleto() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/visitas`);
+            
+            if (!response.ok) {
+                throw new Error('Error al cargar visitas');
+            }
+
+            const todasLasVisitas = await response.json();
+            
+            const hoy = new Date();
+            const inicioHoy = new Date(hoy);
+            inicioHoy.setHours(0, 0, 0, 0);
+            
+            const inicioSemana = new Date(hoy);
+            inicioSemana.setDate(hoy.getDate() - hoy.getDay());
+            inicioSemana.setHours(0, 0, 0, 0);
+            
+            const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            inicioMes.setHours(0, 0, 0, 0);
+
+            let gananciaHoy = 0;
+            let gananciaSemana = 0;
+            let gananciaMes = 0;
+            let visitasHoy = 0;
+
+            todasLasVisitas.forEach(visita => {
+                const fechaVisita = new Date(visita.fecha);
+                const precio = parseFloat(visita.precio) || 0;
+                
+                if (fechaVisita >= inicioHoy) {
+                    gananciaHoy += precio;
+                    visitasHoy++;
+                }
+                
+                if (fechaVisita >= inicioSemana) {
+                    gananciaSemana += precio;
+                }
+                
+                if (fechaVisita >= inicioMes) {
+                    gananciaMes += precio;
+                }
+            });
+
+            document.getElementById("ganancia-hoy").textContent = `S/ ${gananciaHoy.toFixed(2)}`;
+            document.getElementById("ganancia-semana").textContent = `S/ ${gananciaSemana.toFixed(2)}`;
+            document.getElementById("ganancia-mes").textContent = `S/ ${gananciaMes.toFixed(2)}`;
+            document.getElementById("total-visitas").textContent = visitasHoy;
+
+            const ultimasVisitas = [...todasLasVisitas]
+                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                .slice(0, 10);
+
+            if (ultimasVisitas.length === 0) {
+                tbodyVisitas.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay visitas registradas</td></tr>`;
+            } else {
+                tbodyVisitas.innerHTML = ultimasVisitas.map(v => `
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900">${v.nombre || v.nombre_nino || "Desconocido"}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                                ${v.minutos || 0} min
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                                S/ ${(v.precio || 0).toFixed(2)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">${formatDate(v.fecha)}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+                                ${obtenerNombreDia(new Date(v.fecha))}
+                            </span>
+                        </td>
+                    </tr>
+                `).join("");
+            }
+
+            renderGananciasChartPorDia(todasLasVisitas);
+            renderTiemposChart(todasLasVisitas);
+
+        } catch (error) {
+            console.error("❌ Error actualizando panel de ganancias:", error);
+            showAlert("error", "Error", "No se pudieron cargar las estadísticas");
+        }
+    }
+
+    // ======= GRÁFICO: GANANCIAS POR DÍA =======
+     function renderGananciasChartPorDia(visitas) {
+        const ctx = document.getElementById("gananciasChart");
+        if (!ctx) return;
+
+        const gananciasPorDia = {};
+        visitas.forEach(visita => {
+            const fecha = new Date(visita.fecha);
+            const dia = fecha.toLocaleDateString("es-PE");
+            const precio = parseFloat(visita.precio) || 0;
+            
+            gananciasPorDia[dia] = (gananciasPorDia[dia] || 0) + precio;
+        });
+
+        const diasOrdenados = Object.keys(gananciasPorDia)
+            .sort((a, b) => new Date(a) - new Date(b))
+            .slice(-7);
+
+        const labels = diasOrdenados;
+        const valores = diasOrdenados.map(dia => gananciasPorDia[dia]);
+
+        if (gananciasChart) gananciasChart.destroy();
+        
+        gananciasChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Ganancia por Día (S/)",
+                    data: valores,
+                    backgroundColor: "#4CAF50",
+                    borderColor: "#388E3C",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `S/ ${context.raw.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return `S/ ${value}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ======= GRÁFICO: DISTRIBUCIÓN POR TIEMPOS =======
+     function renderTiemposChart(visitas) {
+        const ctx = document.getElementById("tiemposChart");
+        if (!ctx) return;
+
+        const tiemposDistribucion = {};
+        visitas.forEach(visita => {
+            const minutos = visita.minutos || 0;
+            const precio = parseFloat(visita.precio) || 0;
+            
+            if (minutos > 0) {
+                tiemposDistribucion[minutos] = (tiemposDistribucion[minutos] || 0) + 1;
+            }
+        });
+
+        const labels = Object.keys(tiemposDistribucion).map(m => `${m} min`);
+        const valores = Object.values(tiemposDistribucion);
+
+        if (tiemposChart) tiemposChart.destroy();
+        
+        tiemposChart = new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: [
+                        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", 
+                        "#9966FF", "#FF9F40", "#FF6384", "#C9CBCF"
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: ${value} visitas (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+
+// ========== FUNCIÓN CAMBIAR PESTAÑA ==========
+function cambiarPestana(pestanaId) {
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.getElementById(pestanaId).classList.add('active');
+    
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    document.querySelector(`[data-tab="${pestanaId}"]`).classList.add('active');
+    
+    if (pestanaId === 'visitas') {
+        mostrarVisitasRecientes();
+    }
+    
+    if (pestanaId === 'ganancias') {
+        if (document.getElementById('ganancias-panel') && 
+            !document.getElementById('ganancias-panel').classList.contains('hidden')) {
+            gananciasAccesoAutorizado = false;
+            document.getElementById('ganancias-login').classList.remove('hidden');
+            document.getElementById('ganancias-panel').classList.add('hidden');
+            document.getElementById('ganancias-password').value = '';
+        }
+    }
+}
+
+// ========== PRUEBA DE CONEXIÓN CON BACKEND FLASK ==========
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('http://localhost:5000/api/test');
+        if (response.ok) {
+            console.log('✅ Conectado con el backend Flask correctamente.');
+        } else {
+            console.error('⚠️ No se pudo conectar con Flask. Verifica el servidor.');
+        }
+    } catch (error) {
+        console.error('❌ Error al intentar conectar con Flask:', error);
+    }
+});
+    </script>
+</body>
+</html>
